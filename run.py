@@ -544,3 +544,31 @@ def evaluate_all(trained_models, X_val, y_val, X_test, y_test, le) -> list:
         results.append(evaluate_model(name, model, X_val,  y_val,  le, "val"))
         results.append(evaluate_model(name, model, X_test, y_test, le, "test"))
     return results
+
+
+# ==============================================================================
+# PHASE 7 - MODEL SELECTION
+# ==============================================================================
+
+def select_best_model(results: list, trained_models: dict):
+    test_res = [r for r in results if r["split"] == "test"]
+    if not test_res:
+        raise ValueError("No test results found in evaluation results.")
+
+    df_res = pd.DataFrame(test_res).sort_values("macro_f1", ascending=False)
+
+    print(f"\n{'='*60}")
+    print("MODEL SELECTION - Test Set Summary")
+    print("="*60)
+    print(df_res[["name", "accuracy", "macro_f1", "weighted_f1", "roc_auc"]].to_string(index=False))
+
+    best_name = df_res.iloc[0]["name"]
+    best_f1   = df_res.iloc[0]["macro_f1"]
+    print(f"\n[BEST] {best_name}  (macro F1 = {best_f1:.4f})")
+
+    if len(df_res) > 1:
+        second = df_res.iloc[1]
+        gap = best_f1 - second["macro_f1"]
+        print(f"[2nd]  {second['name']}  (macro F1 = {second['macro_f1']:.4f}, gap={gap:.4f})")
+
+    return best_name, trained_models[best_name]
