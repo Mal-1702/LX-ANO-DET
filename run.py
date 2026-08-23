@@ -32,6 +32,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.preprocessing import LabelEncoder
+
 warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
@@ -233,7 +235,24 @@ def run_eda(df: pd.DataFrame):
 # PHASE 3 - FEATURE ENGINEERING
 # ==============================================================================
 
-def transform_features(df: pd.DataFrame, maps: dict = None) -> pd.DataFrame:
+def fit_feature_maps(df_train: pd.DataFrame) -> dict:
+    """
+    Fit all encoding maps strictly on train split to prevent data leakage.
+    Unknown/unseen categories at inference time map to default indices (-1 / 0.0).
+    """
+    maps = {}
+    for col in ["server", "service", "status"]:
+        series = df_train[col].fillna("unknown").astype(str)
+        le = LabelEncoder()
+        le.fit(series)
+        maps[f"{col}_le"] = {cls: int(i) for i, cls in enumerate(le.classes_)}
+    for col in ["source_ip", "username"]:
+        series = df_train[col].fillna("unknown").astype(str)
+        maps[f"{col}_freq"] = series.value_counts(normalize=True).to_dict()
+    return maps
+
+
+def transform_features(df: pd.DataFrame, maps: dict) -> pd.DataFrame:
     """
     Apply feature transformations safely and deterministically.
     Handles missing columns, non-numeric values, and unseen categories without crashing.
@@ -271,8 +290,17 @@ def transform_features(df: pd.DataFrame, maps: dict = None) -> pd.DataFrame:
             s = df[col].fillna("unknown").astype(str)
         else:
             s = pd.Series(["unknown"] * len(df))
-        encoder_dict = maps.get(f"{col}_le", {}) if maps else {}
+        encoder_dict = maps.get(f"{col}_le", {})
         df[f"{col}_enc"] = s.map(encoder_dict).fillna(-1).astype(int)
+
+    # 6. Frequency encodings (unseen/cold-start -> 0.0)
+    for col in ["source_ip", "username"]:
+        if col in df.columns:
+            s = df[col].fillna("unknown").astype(str)
+        else:
+            s = pd.Series(["unknown"] * len(df))
+        freq_dict = maps.get(f"{col}_freq", {})
+        df[f"{col}_freq"] = s.map(freq_dict).fillna(0.0).astype(float)
 
     # 7. Comment keyword indicators
     comment_series = df["comment"].fillna("").astype(str) if "comment" in df.columns else pd.Series([""] * len(df))
