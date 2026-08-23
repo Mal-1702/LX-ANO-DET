@@ -216,3 +216,23 @@ def run_eda(df: pd.DataFrame):
     plt.savefig(corr_path, dpi=120)
     plt.close()
     log.info(f"Correlation heatmap saved -> {corr_path}")
+
+
+# ==============================================================================
+# PHASE 3 - FEATURE ENGINEERING
+# ==============================================================================
+
+def transform_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extract temporal features from timestamps: hour, dow, month, day, weekend, and night flags.
+    """
+    df = df.copy()
+    ts_raw = df["timestamp"] if "timestamp" in df.columns else pd.NaT
+    ts = pd.to_datetime(ts_raw, errors="coerce")
+    df["hour"]       = ts.dt.hour.fillna(0).astype(int)
+    df["dow"]        = ts.dt.day_of_week.fillna(0).astype(int)
+    df["month"]      = ts.dt.month.fillna(1).astype(int)
+    df["day"]        = ts.dt.day.fillna(1).astype(int)
+    df["is_weekend"] = (df["dow"] >= 5).astype(int)
+    df["is_night"]   = ((df["hour"] < 6) | (df["hour"] >= 22)).astype(int)
+    return df
