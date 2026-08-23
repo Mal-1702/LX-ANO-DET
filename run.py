@@ -49,6 +49,17 @@ UNBALANCED_DATA = PROJECT_ROOT / "linux_auth_logs_full(new_unbalanced).csv"
 INFERENCE_DATA  = PROJECT_ROOT / "linux_auth_logs_multiple_anomalies.csv"
 TARGET = "anomaly_label"
 
+PROTO_MAP = {"SSH": 0, "SSH2": 0, "RDP": 1, "TELNET": 2, "unknown": 3}
+
+FEATURE_COLS = [
+    "attempts", "log_port",
+    "hour", "dow", "month", "day", "is_weekend", "is_night",
+    "protocol_enc",
+    "server_enc", "service_enc", "status_enc",
+    "source_ip_freq", "username_freq",
+    "comment_failed", "comment_accepted",
+]
+
 
 # ==============================================================================
 # PHASE 1 - DATA LOADING & AUDIT
@@ -250,6 +261,24 @@ def transform_features(df: pd.DataFrame, maps: dict = None) -> pd.DataFrame:
     df["is_weekend"] = (df["dow"] >= 5).astype(int)
     df["is_night"]   = ((df["hour"] < 6) | (df["hour"] >= 22)).astype(int)
 
+    # 4. Protocol encoding
+    proto_series = df["protocol"].fillna("unknown").astype(str) if "protocol" in df.columns else pd.Series(["unknown"] * len(df))
+    df["protocol_enc"] = proto_series.map(PROTO_MAP).fillna(PROTO_MAP["unknown"]).astype(int)
+
+    # 5. Categorical label encodings (unseen -> -1)
+    for col in ["server", "service", "status"]:
+        if col in df.columns:
+            s = df[col].fillna("unknown").astype(str)
+        else:
+            s = pd.Series(["unknown"] * len(df))
+        encoder_dict = maps.get(f"{col}_le", {}) if maps else {}
+        df[f"{col}_enc"] = s.map(encoder_dict).fillna(-1).astype(int)
+
+    # 7. Comment keyword indicators
+    comment_series = df["comment"].fillna("").astype(str) if "comment" in df.columns else pd.Series([""] * len(df))
+    df["comment_failed"]   = comment_series.str.contains("failed|Failed", na=False).astype(int)
+    df["comment_accepted"] = comment_series.str.contains("accepted|Accepted", na=False).astype(int)
+
     return df
 
 
@@ -257,8 +286,10 @@ def get_X(df_transformed: pd.DataFrame) -> np.ndarray:
     """
     Extract strictly ordered feature matrix X and ensure no NaN/Inf reaches models.
     """
-    cols = [c for c in ["attempts", "log_port", "hour", "dow", "month", "day", "is_weekend", "is_night"] if c in df_transformed.columns]
-    X = df_transformed[cols].values.astype(np.float32)
+    for c in FEATURE_COLS:
+        if c not in df_transformed.columns:
+            df_transformed[c] = 0.0
+    X = df_transformed[FEATURE_COLS].values.astype(np.float32)
     return np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
 
 
