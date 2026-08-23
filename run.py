@@ -52,4 +52,36 @@ TARGET = "anomaly_label"
 def load_and_audit(path, label: str = "dataset") -> pd.DataFrame:
     log.info(f"Loading {label} from {path}")
     df = pd.read_csv(path)
-    return df
+
+    sep = "=" * 60
+    print(f"\n{sep}\nAUDIT: {label.upper()}\n{sep}")
+    print(f"Shape      : {df.shape}")
+    print(f"Columns    : {df.columns.tolist()}")
+    print(f"Duplicates : {df.duplicated().sum()}")
+    print(f"\nDtypes:\n{df.dtypes}")
+    print(f"\nMissing values:\n{df.isnull().sum()}")
+
+    if TARGET in df.columns:
+        vc  = df[TARGET].value_counts()
+        pct = (df[TARGET].value_counts(normalize=True) * 100).round(2)
+        print(f"\nClass distribution:\n{vc}")
+        print(f"\nClass %:\n{pct}")
+
+    if "timestamp" in df.columns:
+        ts = pd.to_datetime(df["timestamp"], errors="coerce")
+        print(f"\nTimestamp range : {ts.min()} -> {ts.max()}")
+        print(f"Timestamp nulls : {ts.isna().sum()}")
+
+    print("\nUnique counts per column:")
+    for c in df.columns:
+        print(f"  {c:25s}: {df[c].nunique():>8,}")
+
+    num_cols  = df.select_dtypes(include=[np.number]).columns.tolist()
+    str_cols  = [c for c in df.columns if df[c].dtype == object or str(df[c].dtype) == "string"]
+    low_card  = [c for c in str_cols if df[c].nunique() <= 20]
+    high_card = [c for c in str_cols if df[c].nunique() > 20]
+    print(f"\nNumeric columns        : {num_cols}")
+    print(f"Low-cardinality (<=20) : {low_card}")
+    print(f"High-cardinality (>20) : {high_card}")
+
+    return df.drop_duplicates().reset_index(drop=True)
