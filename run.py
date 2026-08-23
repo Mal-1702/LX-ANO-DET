@@ -572,3 +572,27 @@ def select_best_model(results: list, trained_models: dict):
         print(f"[2nd]  {second['name']}  (macro F1 = {second['macro_f1']:.4f}, gap={gap:.4f})")
 
     return best_name, trained_models[best_name]
+
+
+# ==============================================================================
+# PHASE 8 - FEATURE IMPORTANCE & ROBUSTNESS
+# ==============================================================================
+
+def show_feature_importance(model, model_name: str):
+    if not hasattr(model, "feature_importances_"):
+        return
+    if len(model.feature_importances_) != len(FEATURE_COLS):
+        log.warning(f"Feature importances length ({len(model.feature_importances_)}) != FEATURE_COLS length ({len(FEATURE_COLS)}) for {model_name}; skipping.")
+        return
+    fi = pd.Series(model.feature_importances_, index=FEATURE_COLS).sort_values(ascending=False)
+    print(f"\nTop 10 features ({model_name}):")
+    print(fi.head(10).to_string())
+    plt.figure(figsize=(9, 5))
+    fi.head(16).plot(kind="bar", color="steelblue")
+    plt.title(f"Feature Importances - {model_name}")
+    plt.ylabel("Importance")
+    plt.tight_layout()
+    path = OUTPUT_DIR / f"feature_importance_{model_name}.png"
+    plt.savefig(path, dpi=110, bbox_inches="tight")
+    plt.close()
+    log.info(f"Feature importance chart saved -> {path}")
