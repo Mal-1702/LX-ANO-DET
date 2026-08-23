@@ -236,3 +236,25 @@ def transform_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     df["is_weekend"] = (df["dow"] >= 5).astype(int)
     df["is_night"]   = ((df["hour"] < 6) | (df["hour"] >= 22)).astype(int)
     return df
+
+
+# ==============================================================================
+# PHASE 4 - CHRONOLOGICAL SPLIT
+# ==============================================================================
+
+def chronological_split(df: pd.DataFrame, train_frac=0.70, val_frac=0.15):
+    """
+    Temporal split: 70% Train, 15% Validation, 15% Test.
+    Prevents lookahead leakage across authentication sequences.
+    """
+    df_sorted = df.sort_values("timestamp").reset_index(drop=True)
+    n  = len(df_sorted)
+    t1 = int(n * train_frac)
+    t2 = int(n * (train_frac + val_frac))
+    train = df_sorted.iloc[:t1].copy()
+    val   = df_sorted.iloc[t1:t2].copy()
+    test  = df_sorted.iloc[t2:].copy()
+    log.info(f"Chronological split -> train={len(train):,}  val={len(val):,}  test={len(test):,}")
+    for name, split in [("train", train), ("val", val), ("test", test)]:
+        print(f"\n{name} class distribution:\n{split[TARGET].value_counts()}")
+    return train, val, test
