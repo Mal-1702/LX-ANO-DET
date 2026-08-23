@@ -32,6 +32,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
@@ -399,4 +400,23 @@ def train_decision_tree(X_train, y_train, X_sub, y_sub, cw_int):
     model = DecisionTreeClassifier(**best, random_state=SEED, class_weight=cw_int)
     model.fit(X_train, y_train)
     log.info("  DecisionTree done.")
+    return model
+
+
+def train_random_forest(X_train, y_train, X_sub, y_sub, cw_int):
+    log.info("Training RandomForest ...")
+    param_grid = {
+        "n_estimators": [100, 150, 200],
+        "max_depth": [12, 16, 20],
+        "min_samples_split": [2, 5],
+        "min_samples_leaf": [1, 2],
+        "max_features": ["sqrt", "log2"],
+    }
+    best = quick_param_search(
+        RandomForestClassifier(random_state=SEED, class_weight=cw_int, n_jobs=1),
+        param_grid, X_sub, y_sub, n_iter=6
+    )
+    model = RandomForestClassifier(**best, random_state=SEED, class_weight=cw_int, n_jobs=-1)
+    model.fit(X_train, y_train)
+    log.info("  RandomForest done.")
     return model
