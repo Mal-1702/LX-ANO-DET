@@ -222,11 +222,25 @@ def run_eda(df: pd.DataFrame):
 # PHASE 3 - FEATURE ENGINEERING
 # ==============================================================================
 
-def transform_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
+def transform_features(df: pd.DataFrame, maps: dict = None) -> pd.DataFrame:
     """
-    Extract temporal features from timestamps: hour, dow, month, day, weekend, and night flags.
+    Apply feature transformations safely and deterministically.
+    Handles missing columns, non-numeric values, and unseen categories without crashing.
     """
     df = df.copy()
+
+    # 1. Attempts: numeric coercion with robust bounds [1, inf)
+    attempts_raw = df["attempts"] if "attempts" in df.columns else 1
+    attempts_num = pd.to_numeric(attempts_raw, errors="coerce").fillna(1.0)
+    df["attempts"] = np.maximum(attempts_num.values, 1.0)
+
+    # 2. Port: numeric coercion with bounds [0, 65535] and log1p transform
+    port_raw = df["port"] if "port" in df.columns else 0
+    port_num = pd.to_numeric(port_raw, errors="coerce").fillna(0.0)
+    df["port"] = np.clip(port_num.values, 0.0, 65535.0)
+    df["log_port"] = np.log1p(df["port"].values)
+
+    # 3. Temporal features
     ts_raw = df["timestamp"] if "timestamp" in df.columns else pd.NaT
     ts = pd.to_datetime(ts_raw, errors="coerce")
     df["hour"]       = ts.dt.hour.fillna(0).astype(int)
@@ -235,7 +249,17 @@ def transform_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     df["day"]        = ts.dt.day.fillna(1).astype(int)
     df["is_weekend"] = (df["dow"] >= 5).astype(int)
     df["is_night"]   = ((df["hour"] < 6) | (df["hour"] >= 22)).astype(int)
+
     return df
+
+
+def get_X(df_transformed: pd.DataFrame) -> np.ndarray:
+    """
+    Extract strictly ordered feature matrix X and ensure no NaN/Inf reaches models.
+    """
+    cols = [c for c in ["attempts", "log_port", "hour", "dow", "month", "day", "is_weekend", "is_night"] if c in df_transformed.columns]
+    X = df_transformed[cols].values.astype(np.float32)
+    return np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
 
 
 # ==============================================================================
