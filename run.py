@@ -596,3 +596,230 @@ def show_feature_importance(model, model_name: str):
     plt.savefig(path, dpi=110, bbox_inches="tight")
     plt.close()
     log.info(f"Feature importance chart saved -> {path}")
+
+
+def robustness_check(best_model, maps: dict, le: LabelEncoder):
+    log.info("Phase 8: Robustness check on auxiliary datasets ...")
+    known = set(le.classes_)
+    for label, path in [("balanced", BALANCED_DATA), ("unbalanced", UNBALANCED_DATA)]:
+        if not path.exists():
+            log.warning(f"Auxiliary dataset not found: {path}")
+            continue
+        df_aux = pd.read_csv(path)
+        if TARGET not in df_aux.columns:
+            log.warning(f"No label column in {label} dataset; skipping.")
+            continue
+        df_aux = df_aux[df_aux[TARGET].isin(known)].copy()
+        if df_aux.empty:
+            log.warning(f"No known-class rows in {label}; skipping.")
+            continue
+        X_aux = get_X(transform_features(df_aux, maps))
+        y_aux = le.transform(df_aux[TARGET].astype(str))
+        r = evaluate_model(best_model.__class__.__name__, best_model, X_aux, y_aux, le, label)
+        print(f"  [{label}] macro F1 = {r['macro_f1']:.4f}")
+
+
+# ==============================================================================
+# PHASE 9 - ARTIFACT SAVING & STANDALONE PREDICTION API
+# ==============================================================================
+
+def save_artifacts(best_model, maps: dict, le: LabelEncoder, best_name: str) -> dict:
+    joblib.dump(best_model, OUTPUT_DIR / "best_model.joblib")
+    joblib.dump(maps,       OUTPUT_DIR / "feature_maps.joblib")
+    joblib.dump(le,         OUTPUT_DIR / "label_encoder.joblib")
+    meta = {
+        "model_name":     best_name,
+        "feature_names":  FEATURE_COLS,
+        "classes":        le.classes_.tolist(),
+        "class_to_index": {c: int(i) for i, c in enumerate(le.classes_)},
+    }
+    with open(OUTPUT_DIR / "model_meta.json", "w") as f:
+        json.dump(meta, f, indent=2)
+    log.info(f"Artifacts saved to {OUTPUT_DIR.resolve()}")
+    return meta
+
+
+def load_artifacts(output_dir: Path = None):
+    """
+    Load trained model and metadata independently of current working directory.
+    Raises FileNotFoundError if artifacts are missing.
+    """
+    dir_path = Path(output_dir) if output_dir else OUTPUT_DIR
+    model_path = dir_path / "best_model.joblib"
+    if not model_path.exists():
+        raise FileNotFoundError(
+            f"Artifacts not found in {dir_path.resolve()}. "
+            "Run main() in run.py first to train and serialize the model."
+        )
+    model = joblib.load(dir_path / "best_model.joblib")
+    maps  = joblib.load(dir_path / "feature_maps.joblib")
+    le    = joblib.load(dir_path / "label_encoder.joblib")
+    with open(dir_path / "model_meta.json") as f:
+        meta = json.load(f)
+    return model, maps, le, meta
+
+
+def predict_single(row: dict, model=None, maps=None, le=None, meta=None) -> dict:
+    """
+    Predict anomaly class for a single log record (dict) safely.
+    Returns {"label": str, "probability": float, "all_probs": {class: prob}}
+    """
+    if model is None:
+        model, maps, le, meta = load_artifacts()
+    df_single = pd.DataFrame([row])
+    df_t = transform_features(df_single, maps)
+    X    = get_X(df_t)
+
+    pred_enc   = int(model.predict(X)[0])
+    pred_label = le.inverse_transform([pred_enc])[0]
+
+    if hasattr(model, "predict_proba"):
+        probs     = model.predict_proba(X)[0]
+        all_probs = {cls: round(float(p), 4) for cls, p in zip(le.classes_, probs)}
+        pred_prob = round(float(probs[pred_enc]), 4) if pred_enc < len(probs) else None
+    else:
+        all_probs = {}
+        pred_prob = None
+
+    return {
+        "label": pred_label,
+        "probability": pred_prob,
+        "is_anomaly": pred_label != "normal",
+        "all_probs": all_probs,
+    }
+
+
+def predict_batch(csv_or_df, output_path: str = None,
+                  model=None, maps=None, le=None, meta=None) -> pd.DataFrame:
+    """
+    Predict anomaly class for a batch DataFrame or CSV path.
+    Adds predicted_label, is_anomaly, and prob_{class} columns.
+    """
+    if model is None:
+        model, maps, le, meta = load_artifacts()
+
+    if isinstance(csv_or_df, (str, Path)):
+        df = pd.read_csv(csv_or_df)
+    elif isinstance(csv_or_df, pd.DataFrame):
+        df = csv_or_df.copy()
+    else:
+        raise ValueError("csv_or_df must be a filepath or pandas DataFrame")
+
+    if df.empty:
+        df["predicted_label"] = []
+        df["is_anomaly"] = []
+        return df
+
+    X = get_X(transform_features(df, maps))
+    preds_enc = model.predict(X)
+    df["predicted_label"] = le.inverse_transform(preds_enc)
+    df["is_anomaly"] = df["predicted_label"] != "normal"
+
+    if hasattr(model, "predict_proba"):
+        probs = model.predict_proba(X)
+        for i, cls in enumerate(le.classes_):
+            df[f"prob_{cls}"] = probs[:, i].round(4)
+
+    if output_path:
+        df.to_csv(output_path, index=False)
+        log.info(f"Batch predictions saved -> {output_path}")
+
+    return df
+
+
+def get_feature_contributions(row: dict, model=None, maps=None, le=None, meta=None) -> dict:
+    """Explainability: top feature importances and values for a single record."""
+    if model is None:
+        model, maps, le, meta = load_artifacts()
+    if not hasattr(model, "feature_importances_"):
+        return {}
+    X = get_X(transform_features(pd.DataFrame([row]), maps))
+    contribs = {
+        feat: {"importance": round(float(imp), 5), "value": round(float(val), 4)}
+        for feat, imp, val in zip(FEATURE_COLS, model.feature_importances_, X[0])
+    }
+    return dict(sorted(contribs.items(), key=lambda x: -x[1]["importance"]))
+
+
+# ==============================================================================
+# MAIN PIPELINE EXECUTION
+# ==============================================================================
+
+def main():
+    print("\n" + "#" * 60)
+    print("  LINUX AUTH LOG ANOMALY CLASSIFICATION PIPELINE")
+    print("  XGBoost available:", XGBOOST_AVAILABLE)
+    print("  Outputs directory :", OUTPUT_DIR.resolve())
+    print("#" * 60)
+
+    # Phase 1
+    log.info("=== PHASE 1: Data loading & audit ===")
+    df = load_and_audit(MAIN_DATA, "main training dataset")
+
+    # Phase 2
+    log.info("=== PHASE 2: EDA ===")
+    run_eda(df)
+
+    # Phase 4 (Chronological split before feature engineering to prevent leakage)
+    log.info("=== PHASE 4: Chronological split ===")
+    df_train_raw, df_val_raw, df_test_raw = chronological_split(df)
+
+    # Phase 3
+    log.info("=== PHASE 3: Feature engineering ===")
+    maps    = fit_feature_maps(df_train_raw)
+    X_train = get_X(transform_features(df_train_raw, maps))
+    X_val   = get_X(transform_features(df_val_raw,   maps))
+    X_test  = get_X(transform_features(df_test_raw,  maps))
+
+    le      = LabelEncoder()
+    y_train = le.fit_transform(df_train_raw[TARGET].astype(str))
+    y_val   = le.transform(df_val_raw[TARGET].astype(str))
+    y_test  = le.transform(df_test_raw[TARGET].astype(str))
+
+    print(f"\nFeatures ({len(FEATURE_COLS)}): {FEATURE_COLS}")
+    print(f"Classes : {le.classes_.tolist()}")
+    print(f"Shapes  -> train={X_train.shape}  val={X_val.shape}  test={X_test.shape}")
+
+    cw_int, cw_str = build_class_weight_dicts(y_train, le.classes_)
+    print(f"\nClass weights (int-keyed): {cw_int}")
+
+    # Phase 5
+    log.info("=== PHASE 5: Model training ===")
+    trained_models = train_all_models(X_train, y_train, le, cw_int, cw_str)
+
+    # Phase 6
+    log.info("=== PHASE 6: Evaluation ===")
+    results = evaluate_all(trained_models, X_val, y_val, X_test, y_test, le)
+
+    # Phase 7
+    log.info("=== PHASE 7: Model selection ===")
+    best_name, best_model = select_best_model(results, trained_models)
+
+    # Phase 8
+    log.info("=== PHASE 8: Feature importance & robustness ===")
+    for name, model in trained_models.items():
+        show_feature_importance(model, name)
+    robustness_check(best_model, maps, le)
+
+    # Phase 9
+    log.info("=== PHASE 9: Saving artifacts ===")
+    meta = save_artifacts(best_model, maps, le, best_name)
+
+    # Demo inference on unlabeled evaluation dataset
+    if INFERENCE_DATA.exists():
+        log.info("DEMO: Batch inference on unlabeled dataset ...")
+        demo_out = str(OUTPUT_DIR / "inference_predictions.csv")
+        df_infer = predict_batch(
+            INFERENCE_DATA, output_path=demo_out,
+            model=best_model, maps=maps, le=le, meta=meta
+        )
+        print("\nInference summary (unlabeled dataset):")
+        print(df_infer["predicted_label"].value_counts())
+
+    print("\n" + "#" * 60)
+    print(f"  PIPELINE COMPLETE  ->  artifacts saved to: {OUTPUT_DIR.resolve()}")
+    print("#" * 60)
+
+
+if __name__ == "__main__":
+    main()

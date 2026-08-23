@@ -1,0 +1,35 @@
+{
+  "model_name": "DecisionTree",
+  "feature_names": [
+    "attempts",
+    "log_port",
+    "hour",
+    "dow",
+    "month",
+    "day",
+    "is_weekend",
+    "is_night",
+    "protocol_enc",
+    "server_enc",
+    "service_enc",
+    "status_enc",
+    "source_ip_freq",
+    "username_freq",
+    "comment_failed",
+    "comment_accepted"
+  ],
+  "classes": [
+    "brute_force",
+    "geo_anomaly",
+    "normal",
+    "port_scan",
+    "privilege_escalation"
+  ],
+  "class_to_index": {
+    "brute_force": 0,
+    "geo_anomaly": 1,
+    "normal": 2,
+    "port_scan": 3,
+    "privilege_escalation": 4
+  }
+}
