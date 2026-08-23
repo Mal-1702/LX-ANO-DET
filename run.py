@@ -33,6 +33,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils.class_weight import compute_class_weight
 
 warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -341,3 +342,16 @@ def chronological_split(df: pd.DataFrame, train_frac=0.70, val_frac=0.15):
     for name, split in [("train", train), ("val", val), ("test", test)]:
         print(f"\n{name} class distribution:\n{split[TARGET].value_counts()}")
     return train, val, test
+
+
+# ==============================================================================
+# PHASE 5 - MODEL TRAINING
+# ==============================================================================
+
+def build_class_weight_dicts(y_train: np.ndarray, classes):
+    """Build class weight dictionaries matching encoded integer targets."""
+    numeric_classes = np.arange(len(classes))
+    weights = compute_class_weight("balanced", classes=numeric_classes, y=y_train)
+    cw_int = dict(enumerate(weights))
+    cw_str = {classes[i]: float(w) for i, w in cw_int.items()}
+    return cw_int, cw_str
