@@ -33,6 +33,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score, classification_report, confusion_matrix,
+    f1_score, roc_auc_score,
+)
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
@@ -485,3 +489,58 @@ def train_all_models(X_train, y_train, le, cw_int, cw_str):
     if XGBOOST_AVAILABLE:
         trained["XGBoost"] = train_xgboost_model(X_train, y_train, X_sub, y_sub, cw_str, le)
     return trained
+
+
+# ==============================================================================
+# PHASE 6 - EVALUATION
+# ==============================================================================
+
+def evaluate_model(name: str, model, X, y_enc, le, split_name="val") -> dict:
+    y_pred_enc = model.predict(X)
+    y_true_lbl = le.inverse_transform(y_enc)
+    y_pred_lbl = le.inverse_transform(y_pred_enc)
+
+    unique_labels = sorted(set(y_true_lbl) | set(y_pred_lbl))
+
+    acc = accuracy_score(y_enc, y_pred_enc)
+    mf1 = f1_score(y_enc, y_pred_enc, average="macro")
+    wf1 = f1_score(y_enc, y_pred_enc, average="weighted")
+
+    print(f"\n{'-'*60}")
+    print(f"MODEL: {name}  |  Split: {split_name}")
+    print(f"  Accuracy     : {acc:.4f}")
+    print(f"  Macro F1     : {mf1:.4f}")
+    print(f"  Weighted F1  : {wf1:.4f}")
+    print(classification_report(y_true_lbl, y_pred_lbl, target_names=unique_labels, digits=4))
+
+    roc = None
+    if hasattr(model, "predict_proba"):
+        try:
+            if len(np.unique(y_enc)) >= 2:
+                y_prob = model.predict_proba(X)
+                roc = roc_auc_score(y_enc, y_prob, multi_class="ovr", average="macro")
+                print(f"  ROC-AUC (macro OVR): {roc:.4f}")
+        except Exception as e:
+            log.warning(f"ROC-AUC calculation failed for {name} ({split_name}): {e}")
+
+    cm = confusion_matrix(y_true_lbl, y_pred_lbl, labels=unique_labels)
+    plt.figure(figsize=(7, 5))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+                xticklabels=unique_labels, yticklabels=unique_labels)
+    plt.title(f"Confusion Matrix - {name} ({split_name})")
+    plt.ylabel("True")
+    plt.xlabel("Predicted")
+    plt.tight_layout()
+    plt.savefig(OUTPUT_DIR / f"cm_{name}_{split_name}.png", dpi=110, bbox_inches="tight")
+    plt.close()
+
+    return {"name": name, "split": split_name,
+            "accuracy": acc, "macro_f1": mf1, "weighted_f1": wf1, "roc_auc": roc}
+
+
+def evaluate_all(trained_models, X_val, y_val, X_test, y_test, le) -> list:
+    results = []
+    for name, model in trained_models.items():
+        results.append(evaluate_model(name, model, X_val,  y_val,  le, "val"))
+        results.append(evaluate_model(name, model, X_test, y_test, le, "test"))
+    return results
