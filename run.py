@@ -32,7 +32,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
@@ -419,4 +419,27 @@ def train_random_forest(X_train, y_train, X_sub, y_sub, cw_int):
     model = RandomForestClassifier(**best, random_state=SEED, class_weight=cw_int, n_jobs=-1)
     model.fit(X_train, y_train)
     log.info("  RandomForest done.")
+    return model
+
+
+def train_gradient_boosting(X_train, y_train, X_sub, y_sub, cw_str, le):
+    log.info("Training GradientBoosting on 100k subsample with sample_weight ...")
+    param_grid = {
+        "n_estimators": [80, 120],
+        "max_depth": [3, 5],
+        "learning_rate": [0.05, 0.1],
+        "subsample": [0.8, 1.0],
+    }
+    best = quick_param_search(
+        GradientBoostingClassifier(random_state=SEED),
+        param_grid, X_sub, y_sub, n_iter=6
+    )
+    n_gb = min(100_000, len(X_train))
+    rng_gb = np.random.default_rng(SEED)
+    idx  = sorted(rng_gb.choice(len(X_train), n_gb, replace=False))
+    X_gb, y_gb = X_train[idx], y_train[idx]
+    sw_gb = np.array([cw_str[le.classes_[c]] for c in y_gb])
+    model = GradientBoostingClassifier(**best, random_state=SEED)
+    model.fit(X_gb, y_gb, sample_weight=sw_gb)
+    log.info(f"  GradientBoosting done (n={n_gb:,}).")
     return model
