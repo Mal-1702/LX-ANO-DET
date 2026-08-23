@@ -34,6 +34,7 @@ import seaborn as sns
 
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils.class_weight import compute_class_weight
 
 warnings.filterwarnings("ignore")
@@ -381,3 +382,21 @@ def make_sub_sample(X_train, y_train, size=20_000):
         idx.extend(rng.choice(cls_idx, min(take, len(cls_idx)), replace=False).tolist())
     idx = np.array(sorted(idx))
     return X_train[idx], y_train[idx]
+
+
+def train_decision_tree(X_train, y_train, X_sub, y_sub, cw_int):
+    log.info("Training DecisionTree ...")
+    param_grid = {
+        "max_depth": [10, 15, 20, 25],
+        "min_samples_split": [2, 5, 10],
+        "min_samples_leaf": [1, 2, 4],
+        "criterion": ["gini", "entropy"],
+    }
+    best = quick_param_search(
+        DecisionTreeClassifier(random_state=SEED, class_weight=cw_int),
+        param_grid, X_sub, y_sub, n_iter=15
+    )
+    model = DecisionTreeClassifier(**best, random_state=SEED, class_weight=cw_int)
+    model.fit(X_train, y_train)
+    log.info("  DecisionTree done.")
+    return model
