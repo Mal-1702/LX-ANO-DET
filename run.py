@@ -38,6 +38,12 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils.class_weight import compute_class_weight
 
+try:
+    from xgboost import XGBClassifier
+    XGBOOST_AVAILABLE = True
+except ImportError:
+    XGBOOST_AVAILABLE = False
+
 warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
@@ -443,3 +449,39 @@ def train_gradient_boosting(X_train, y_train, X_sub, y_sub, cw_str, le):
     model.fit(X_gb, y_gb, sample_weight=sw_gb)
     log.info(f"  GradientBoosting done (n={n_gb:,}).")
     return model
+
+
+def train_xgboost_model(X_train, y_train, X_sub, y_sub, cw_str, le):
+    log.info("Training XGBoost with exact sample weights ...")
+    param_grid = {
+        "n_estimators": [100, 150],
+        "max_depth": [4, 6],
+        "learning_rate": [0.05, 0.1],
+        "subsample": [0.8, 1.0],
+        "colsample_bytree": [0.8, 1.0],
+    }
+    best = quick_param_search(
+        XGBClassifier(random_state=SEED, eval_metric="mlogloss",
+                      n_jobs=1, tree_method="hist", verbosity=0),
+        param_grid, X_sub, y_sub, n_iter=6
+    )
+    # Ensure sample_weight matches y_train length exactly
+    sw_train = np.array([cw_str[le.classes_[c]] for c in y_train], dtype=np.float32)
+    model = XGBClassifier(
+        **best, random_state=SEED, eval_metric="mlogloss",
+        n_jobs=-1, tree_method="hist", verbosity=0
+    )
+    model.fit(X_train, y_train, sample_weight=sw_train)
+    log.info("  XGBoost done.")
+    return model
+
+
+def train_all_models(X_train, y_train, le, cw_int, cw_str):
+    X_sub, y_sub = make_sub_sample(X_train, y_train, size=25_000)
+    trained = {}
+    trained["DecisionTree"] = train_decision_tree(X_train, y_train, X_sub, y_sub, cw_int)
+    trained["RandomForest"] = train_random_forest(X_train, y_train, X_sub, y_sub, cw_int)
+    trained["GradientBoosting"] = train_gradient_boosting(X_train, y_train, X_sub, y_sub, cw_str, le)
+    if XGBOOST_AVAILABLE:
+        trained["XGBoost"] = train_xgboost_model(X_train, y_train, X_sub, y_sub, cw_str, le)
+    return trained
