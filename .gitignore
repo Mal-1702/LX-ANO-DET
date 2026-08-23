@@ -56,3 +56,16 @@ Thumbs.db
 
 # Logs
 *.log
+
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Large ML artifacts
+outputs/*.joblib
+outputs/*.csv
+
+# Large datasets
+*.csv
