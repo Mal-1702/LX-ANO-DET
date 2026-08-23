@@ -32,6 +32,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 
@@ -355,3 +356,28 @@ def build_class_weight_dicts(y_train: np.ndarray, classes):
     cw_int = dict(enumerate(weights))
     cw_str = {classes[i]: float(w) for i, w in cw_int.items()}
     return cw_int, cw_str
+
+
+def quick_param_search(estimator, param_grid: dict, X_sub, y_sub, n_iter=5) -> dict:
+    """Perform 3-fold Stratified CV hyperparameter search scored on Macro-F1."""
+    cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=SEED)
+    search = RandomizedSearchCV(
+        estimator, param_grid, n_iter=n_iter, cv=cv,
+        scoring="f1_macro", random_state=SEED, n_jobs=1, verbose=0, refit=False,
+    )
+    search.fit(X_sub, y_sub)
+    log.info(f"  Best CV macro-F1={search.best_score_:.4f}  params={search.best_params_}")
+    return search.best_params_
+
+
+def make_sub_sample(X_train, y_train, size=20_000):
+    """Generate reproducible stratified sub-sample for fast parameter tuning."""
+    rng = np.random.default_rng(SEED)
+    classes, counts = np.unique(y_train, return_counts=True)
+    idx = []
+    for cls, cnt in zip(classes, counts):
+        cls_idx = np.where(y_train == cls)[0]
+        take = max(1, int(size * cnt / len(y_train)))
+        idx.extend(rng.choice(cls_idx, min(take, len(cls_idx)), replace=False).tolist())
+    idx = np.array(sorted(idx))
+    return X_train[idx], y_train[idx]
