@@ -274,18 +274,18 @@ def transform_features(df: pd.DataFrame, maps: dict) -> pd.DataFrame:
     df = df.copy()
 
     # 1. Attempts: numeric coercion with robust bounds [1, inf)
-    attempts_raw = df["attempts"] if "attempts" in df.columns else 1
+    attempts_raw = df["attempts"] if "attempts" in df.columns else pd.Series([1] * len(df))
     attempts_num = pd.to_numeric(attempts_raw, errors="coerce").fillna(1.0)
     df["attempts"] = np.maximum(attempts_num.values, 1.0)
 
     # 2. Port: numeric coercion with bounds [0, 65535] and log1p transform
-    port_raw = df["port"] if "port" in df.columns else 0
+    port_raw = df["port"] if "port" in df.columns else pd.Series([0] * len(df))
     port_num = pd.to_numeric(port_raw, errors="coerce").fillna(0.0)
     df["port"] = np.clip(port_num.values, 0.0, 65535.0)
     df["log_port"] = np.log1p(df["port"].values)
 
     # 3. Temporal features
-    ts_raw = df["timestamp"] if "timestamp" in df.columns else pd.NaT
+    ts_raw = df["timestamp"] if "timestamp" in df.columns else pd.Series([pd.NaT] * len(df))
     ts = pd.to_datetime(ts_raw, errors="coerce")
     df["hour"]       = ts.dt.hour.fillna(0).astype(int)
     df["dow"]        = ts.dt.day_of_week.fillna(0).astype(int)
