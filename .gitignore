@@ -63,9 +63,11 @@ __pycache__/
 *.pyc
 .env
 
-# Large ML artifacts
+# Large ML artifacts (keep metadata JSONs tracked)
 outputs/*.joblib
 outputs/*.csv
+!outputs/model_meta.json
+!outputs/evaluation_results.json
 
 # Large datasets
 *.csv
