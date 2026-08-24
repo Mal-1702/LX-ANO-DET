@@ -787,3 +787,69 @@ with tabs[8]:
 
             except Exception as e:
                 st.error(f"Explanation failed: {str(e)}")
+
+
+# ========================================================================
+# TAB 10: SYSTEM / MODEL INFORMATION
+# ========================================================================
+with tabs[9]:
+    st.header("System & Model Information")
+
+    # Model info
+    st.subheader("Model Configuration")
+    info_rows = [
+        ("Model Name", model_name),
+        ("Model Type", type(model).__name__),
+        ("Number of Features", str(len(FEATURE_COLS))),
+        ("Number of Classes", str(len(classes))),
+        ("Classes", ", ".join(classes)),
+    ]
+
+    if eval_data and "dataset_info" in eval_data:
+        ds_info = eval_data["dataset_info"]
+        info_rows.extend([
+            ("Training Samples", f"{ds_info.get('train_size', 'N/A'):,}"),
+            ("Validation Samples", f"{ds_info.get('val_size', 'N/A'):,}"),
+            ("Test Samples", f"{ds_info.get('test_size', 'N/A'):,}"),
+        ])
+
+    info_df = pd.DataFrame(info_rows, columns=["Property", "Value"])
+    st.dataframe(info_df, use_container_width=True, hide_index=True)
+
+    # Feature names
+    st.subheader("Feature Names (Ordered)")
+    feat_df = pd.DataFrame({"Index": range(len(FEATURE_COLS)), "Feature": FEATURE_COLS})
+    st.dataframe(feat_df, use_container_width=True, hide_index=True, height=250)
+
+    # Model metadata JSON
+    st.subheader("Model Metadata (model_meta.json)")
+    st.json(meta)
+
+    # Artifact files
+    st.subheader("Artifact Files")
+    artifacts = [
+        ("best_model.joblib", OUTPUT_DIR / "best_model.joblib"),
+        ("feature_maps.joblib", OUTPUT_DIR / "feature_maps.joblib"),
+        ("label_encoder.joblib", OUTPUT_DIR / "label_encoder.joblib"),
+        ("model_meta.json", OUTPUT_DIR / "model_meta.json"),
+        ("evaluation_results.json", OUTPUT_DIR / "evaluation_results.json"),
+    ]
+    art_rows = []
+    for name, path in artifacts:
+        exists = path.exists()
+        size = path.stat().st_size if exists else 0
+        art_rows.append({
+            "File": name,
+            "Status": "✅ Present" if exists else "❌ Missing",
+            "Size": f"{size:,} bytes" if exists else "N/A",
+        })
+    st.dataframe(pd.DataFrame(art_rows), use_container_width=True, hide_index=True)
+
+    # Model hyperparameters
+    st.subheader("Model Hyperparameters")
+    if hasattr(model, "get_params"):
+        params = model.get_params()
+        params_df = pd.DataFrame([
+            {"Parameter": k, "Value": str(v)} for k, v in sorted(params.items())
+        ])
+        st.dataframe(params_df, use_container_width=True, hide_index=True, height=300)
