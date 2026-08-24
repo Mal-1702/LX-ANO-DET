@@ -538,3 +538,103 @@ with tabs[5]:
         )
     else:
         st.info("No robustness results found. Run the evaluation script to generate results.")
+
+
+# ========================================================================
+# TAB 7: BATCH INFERENCE
+# ========================================================================
+with tabs[6]:
+    st.header("Batch Inference — Upload CSV")
+    st.markdown("Upload a CSV of authentication logs for batch anomaly classification.")
+    st.caption(
+        "Expected columns: `timestamp`, `source_ip`, `server`, `username`, `service`, "
+        "`attempts`, `status`, `port`, `protocol`, `comment`. "
+        "Missing columns are handled gracefully with safe defaults."
+    )
+
+    uploaded = st.file_uploader("📂 Upload Authentication Log CSV", type=["csv"], key="batch_upload")
+
+    if uploaded is not None:
+        try:
+            # Validate file
+            content = uploaded.read()
+            if not content.strip():
+                st.error("Uploaded CSV file is empty.")
+                st.stop()
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
+                tmp.write(content)
+                tmp_path = tmp.name
+
+            with st.spinner("🔍 Analyzing log patterns and detecting anomalies..."):
+                df_pred = predict_batch(tmp_path, model=model, maps=maps, le=le, meta=meta)
+
+            os.unlink(tmp_path)
+
+            total = len(df_pred)
+            if total == 0:
+                st.warning("CSV contained no data rows.")
+            else:
+                anomalies = df_pred[df_pred["predicted_label"] != "normal"]
+                anomaly_count = len(anomalies)
+                normal_count = total - anomaly_count
+                anomaly_rate = anomaly_count / total * 100
+
+                # KPIs
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Total Records", f"{total:,}")
+                c2.metric("Normal Events", f"{normal_count:,}")
+                c3.metric("Anomalies Detected", f"{anomaly_count:,}",
+                         delta=f"{anomaly_rate:.2f}% rate", delta_color="inverse")
+                c4.metric("Model", model_name)
+
+                st.divider()
+
+                # Class breakdown
+                st.subheader("Classification Breakdown")
+                summary = df_pred["predicted_label"].value_counts().reset_index()
+                summary.columns = ["Class", "Count"]
+                summary["Percentage"] = (summary["Count"] / total * 100).round(2)
+
+                ch_col, tb_col = st.columns([3, 2])
+                with ch_col:
+                    import plotly.express as px
+                    fig = px.pie(summary, values="Count", names="Class",
+                                title="Prediction Distribution",
+                                color_discrete_sequence=px.colors.qualitative.Set2)
+                    st.plotly_chart(fig, use_container_width=True)
+                with tb_col:
+                    st.dataframe(summary, use_container_width=True, hide_index=True)
+
+                # Table view
+                st.subheader("Prediction Results")
+                filter_opt = st.selectbox("Filter:", ["All Records", "Anomalies Only"] + classes, key="batch_filter")
+                if filter_opt == "Anomalies Only":
+                    show_df = anomalies
+                elif filter_opt != "All Records":
+                    show_df = df_pred[df_pred["predicted_label"] == filter_opt]
+                else:
+                    show_df = df_pred
+
+                show_cols = [c for c in show_df.columns if not c.startswith("prob_")]
+
+                def highlight_anomalies(row):
+                    if row.get("predicted_label", "normal") != "normal":
+                        return ["background-color: #ffcccc; color: #900C3F;"] * len(row)
+                    return [""] * len(row)
+
+                st.dataframe(
+                    show_df[show_cols].head(500).style.apply(highlight_anomalies, axis=1),
+                    use_container_width=True, height=400,
+                )
+
+                # Download
+                st.download_button(
+                    "📥 Download Full Predictions CSV",
+                    data=df_pred.to_csv(index=False),
+                    file_name="auth_anomaly_predictions.csv",
+                    mime="text/csv",
+                )
+
+        except Exception as e:
+            st.error(f"Error processing file: {str(e)}")
