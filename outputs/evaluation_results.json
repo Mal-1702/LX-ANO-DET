@@ -1,0 +1,2212 @@
+{
+  "evaluation_results": [
+    {
+      "model": "DecisionTree",
+      "split": "train",
+      "accuracy": 0.9742428571428572,
+      "macro_precision": 0.8068984538506321,
+      "macro_recall": 0.9943977853994834,
+      "macro_f1": 0.8664421885087424,
+      "weighted_f1": 0.9789053372416823,
+      "roc_auc": 0.9992928044854565,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4357,
+          "tp": 4357,
+          "fp": 0,
+          "fn": 0,
+          "tn": 345643
+        },
+        "geo_anomaly": {
+          "precision": 0.3941,
+          "recall": 0.9995,
+          "f1": 0.5653,
+          "support": 4265,
+          "tp": 4263,
+          "fp": 6555,
+          "fn": 2,
+          "tn": 339180
+        },
+        "normal": {
+          "precision": 1.0,
+          "recall": 0.9729,
+          "f1": 0.9863,
+          "support": 332687,
+          "tp": 323676,
+          "fp": 2,
+          "fn": 9011,
+          "tn": 17311
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4311,
+          "tp": 4311,
+          "fp": 0,
+          "fn": 0,
+          "tn": 345689
+        },
+        "privilege_escalation": {
+          "precision": 0.6404,
+          "recall": 0.9995,
+          "f1": 0.7807,
+          "support": 4380,
+          "tp": 4378,
+          "fp": 2458,
+          "fn": 2,
+          "tn": 343162
+        }
+      },
+      "confusion_matrix": [
+        [
+          4357,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          4263,
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          6553,
+          323676,
+          0,
+          2458
+        ],
+        [
+          0,
+          0,
+          0,
+          4311,
+          0
+        ],
+        [
+          0,
+          2,
+          0,
+          0,
+          4378
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "DecisionTree",
+      "split": "val",
+      "accuracy": 0.95944,
+      "macro_precision": 0.7337191029141967,
+      "macro_recall": 0.8347199246642951,
+      "macro_f1": 0.7674478834954305,
+      "weighted_f1": 0.9658153305535274,
+      "roc_auc": 0.8986438035018924,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 956,
+          "tp": 956,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74044
+        },
+        "geo_anomaly": {
+          "precision": 0.247,
+          "recall": 0.5721,
+          "f1": 0.3451,
+          "support": 909,
+          "tp": 520,
+          "fp": 1585,
+          "fn": 389,
+          "tn": 72506
+        },
+        "normal": {
+          "precision": 0.99,
+          "recall": 0.9675,
+          "f1": 0.9786,
+          "support": 71333,
+          "tp": 69013,
+          "fp": 697,
+          "fn": 2320,
+          "tn": 2970
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 892,
+          "tp": 892,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74108
+        },
+        "privilege_escalation": {
+          "precision": 0.4316,
+          "recall": 0.6341,
+          "f1": 0.5136,
+          "support": 910,
+          "tp": 577,
+          "fp": 760,
+          "fn": 333,
+          "tn": 73330
+        }
+      },
+      "confusion_matrix": [
+        [
+          956,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          520,
+          376,
+          0,
+          13
+        ],
+        [
+          0,
+          1573,
+          69013,
+          0,
+          747
+        ],
+        [
+          0,
+          0,
+          0,
+          892,
+          0
+        ],
+        [
+          0,
+          12,
+          321,
+          0,
+          577
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "DecisionTree",
+      "split": "test",
+      "accuracy": 0.9588133333333333,
+      "macro_precision": 0.7383890391284702,
+      "macro_recall": 0.8430941338047194,
+      "macro_f1": 0.7735666291161787,
+      "weighted_f1": 0.9652990367177705,
+      "roc_auc": 0.9033608070881854,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 920,
+          "tp": 920,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74080
+        },
+        "geo_anomaly": {
+          "precision": 0.2526,
+          "recall": 0.5786,
+          "f1": 0.3517,
+          "support": 954,
+          "tp": 552,
+          "fp": 1633,
+          "fn": 402,
+          "tn": 72413
+        },
+        "normal": {
+          "precision": 0.9901,
+          "recall": 0.9666,
+          "f1": 0.9782,
+          "support": 71273,
+          "tp": 68893,
+          "fp": 691,
+          "fn": 2380,
+          "tn": 3036
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 922,
+          "tp": 922,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74078
+        },
+        "privilege_escalation": {
+          "precision": 0.4492,
+          "recall": 0.6702,
+          "f1": 0.5379,
+          "support": 931,
+          "tp": 624,
+          "fp": 765,
+          "fn": 307,
+          "tn": 73304
+        }
+      },
+      "confusion_matrix": [
+        [
+          920,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          552,
+          394,
+          0,
+          8
+        ],
+        [
+          0,
+          1623,
+          68893,
+          0,
+          757
+        ],
+        [
+          0,
+          0,
+          0,
+          922,
+          0
+        ],
+        [
+          0,
+          10,
+          297,
+          0,
+          624
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "RandomForest",
+      "split": "train",
+      "accuracy": 0.9170114285714286,
+      "macro_precision": 0.6912096417320877,
+      "macro_recall": 0.9779556191812313,
+      "macro_f1": 0.7390554847222943,
+      "weighted_f1": 0.9412188951895205,
+      "roc_auc": 0.9973170192769102,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4357,
+          "tp": 4357,
+          "fp": 0,
+          "fn": 0,
+          "tn": 345643
+        },
+        "geo_anomaly": {
+          "precision": 0.2124,
+          "recall": 0.9768,
+          "f1": 0.3489,
+          "support": 4265,
+          "tp": 4166,
+          "fp": 15447,
+          "fn": 99,
+          "tn": 330288
+        },
+        "normal": {
+          "precision": 1.0,
+          "recall": 0.913,
+          "f1": 0.9545,
+          "support": 332687,
+          "tp": 303740,
+          "fp": 2,
+          "fn": 28947,
+          "tn": 17311
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4311,
+          "tp": 4311,
+          "fp": 0,
+          "fn": 0,
+          "tn": 345689
+        },
+        "privilege_escalation": {
+          "precision": 0.2436,
+          "recall": 1.0,
+          "f1": 0.3918,
+          "support": 4380,
+          "tp": 4380,
+          "fp": 13597,
+          "fn": 0,
+          "tn": 332023
+        }
+      },
+      "confusion_matrix": [
+        [
+          4357,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          4166,
+          2,
+          0,
+          97
+        ],
+        [
+          0,
+          15447,
+          303740,
+          0,
+          13500
+        ],
+        [
+          0,
+          0,
+          0,
+          4311,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          4380
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "RandomForest",
+      "split": "val",
+      "accuracy": 0.91712,
+      "macro_precision": 0.6810409688130077,
+      "macro_recall": 0.9199964937568123,
+      "macro_f1": 0.7222036581984758,
+      "weighted_f1": 0.940849977730408,
+      "roc_auc": 0.9882540669991136,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 956,
+          "tp": 956,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74044
+        },
+        "geo_anomaly": {
+          "precision": 0.1668,
+          "recall": 0.6887,
+          "f1": 0.2686,
+          "support": 909,
+          "tp": 626,
+          "fp": 3126,
+          "fn": 283,
+          "tn": 70965
+        },
+        "normal": {
+          "precision": 0.9963,
+          "recall": 0.9169,
+          "f1": 0.9549,
+          "support": 71333,
+          "tp": 65405,
+          "fp": 244,
+          "fn": 5928,
+          "tn": 3423
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.9955,
+          "f1": 0.9978,
+          "support": 892,
+          "tp": 888,
+          "fp": 0,
+          "fn": 4,
+          "tn": 74108
+        },
+        "privilege_escalation": {
+          "precision": 0.2421,
+          "recall": 0.9989,
+          "f1": 0.3897,
+          "support": 910,
+          "tp": 909,
+          "fp": 2846,
+          "fn": 1,
+          "tn": 71244
+        }
+      },
+      "confusion_matrix": [
+        [
+          956,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          626,
+          243,
+          0,
+          40
+        ],
+        [
+          0,
+          3122,
+          65405,
+          0,
+          2806
+        ],
+        [
+          0,
+          4,
+          0,
+          888,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          909
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "RandomForest",
+      "split": "test",
+      "accuracy": 0.9197466666666667,
+      "macro_precision": 0.6844957755029972,
+      "macro_recall": 0.9183355942373155,
+      "macro_f1": 0.7267146653110281,
+      "weighted_f1": 0.9420347977577627,
+      "roc_auc": 0.9882561624201294,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 920,
+          "tp": 920,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74080
+        },
+        "geo_anomaly": {
+          "precision": 0.1874,
+          "recall": 0.6771,
+          "f1": 0.2935,
+          "support": 954,
+          "tp": 646,
+          "fp": 2802,
+          "fn": 308,
+          "tn": 71244
+        },
+        "normal": {
+          "precision": 0.9961,
+          "recall": 0.9199,
+          "f1": 0.9565,
+          "support": 71273,
+          "tp": 65567,
+          "fp": 256,
+          "fn": 5706,
+          "tn": 3471
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.9957,
+          "f1": 0.9978,
+          "support": 922,
+          "tp": 918,
+          "fp": 0,
+          "fn": 4,
+          "tn": 74078
+        },
+        "privilege_escalation": {
+          "precision": 0.239,
+          "recall": 0.9989,
+          "f1": 0.3857,
+          "support": 931,
+          "tp": 930,
+          "fp": 2961,
+          "fn": 1,
+          "tn": 71108
+        }
+      },
+      "confusion_matrix": [
+        [
+          920,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          646,
+          255,
+          0,
+          53
+        ],
+        [
+          0,
+          2798,
+          65567,
+          0,
+          2908
+        ],
+        [
+          0,
+          4,
+          0,
+          918,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          930
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "GradientBoosting",
+      "split": "train",
+      "accuracy": 0.8489485714285714,
+      "macro_precision": 0.6915435631599539,
+      "macro_recall": 0.9623862638267425,
+      "macro_f1": 0.7224058856148721,
+      "weighted_f1": 0.9020880040979743,
+      "roc_auc": 0.9917758013455646,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4357,
+          "tp": 4357,
+          "fp": 0,
+          "fn": 0,
+          "tn": 345643
+        },
+        "geo_anomaly": {
+          "precision": 0.0834,
+          "recall": 0.9712,
+          "f1": 0.1537,
+          "support": 4265,
+          "tp": 4142,
+          "fp": 45504,
+          "fn": 123,
+          "tn": 300231
+        },
+        "normal": {
+          "precision": 0.9998,
+          "recall": 0.8415,
+          "f1": 0.9138,
+          "support": 332687,
+          "tp": 279945,
+          "fp": 47,
+          "fn": 52742,
+          "tn": 17266
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.9993,
+          "f1": 0.9997,
+          "support": 4311,
+          "tp": 4308,
+          "fp": 0,
+          "fn": 3,
+          "tn": 345689
+        },
+        "privilege_escalation": {
+          "precision": 0.3745,
+          "recall": 1.0,
+          "f1": 0.5449,
+          "support": 4380,
+          "tp": 4380,
+          "fp": 7317,
+          "fn": 0,
+          "tn": 338303
+        }
+      },
+      "confusion_matrix": [
+        [
+          4357,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          4142,
+          47,
+          0,
+          76
+        ],
+        [
+          0,
+          45501,
+          279945,
+          0,
+          7241
+        ],
+        [
+          0,
+          3,
+          0,
+          4308,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          4380
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "GradientBoosting",
+      "split": "val",
+      "accuracy": 0.8488933333333334,
+      "macro_precision": 0.6887473062547989,
+      "macro_recall": 0.9591019186311549,
+      "macro_f1": 0.7193184341746599,
+      "weighted_f1": 0.9021397141545578,
+      "roc_auc": 0.9904324530573421,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 956,
+          "tp": 956,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74044
+        },
+        "geo_anomaly": {
+          "precision": 0.082,
+          "recall": 0.9538,
+          "f1": 0.151,
+          "support": 909,
+          "tp": 867,
+          "fp": 9708,
+          "fn": 42,
+          "tn": 64383
+        },
+        "normal": {
+          "precision": 0.9996,
+          "recall": 0.8417,
+          "f1": 0.9139,
+          "support": 71333,
+          "tp": 60042,
+          "fp": 22,
+          "fn": 11291,
+          "tn": 3645
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 892,
+          "tp": 892,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74108
+        },
+        "privilege_escalation": {
+          "precision": 0.3621,
+          "recall": 1.0,
+          "f1": 0.5317,
+          "support": 910,
+          "tp": 910,
+          "fp": 1603,
+          "fn": 0,
+          "tn": 72487
+        }
+      },
+      "confusion_matrix": [
+        [
+          956,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          867,
+          22,
+          0,
+          20
+        ],
+        [
+          0,
+          9708,
+          60042,
+          0,
+          1583
+        ],
+        [
+          0,
+          0,
+          0,
+          892,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          910
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "GradientBoosting",
+      "split": "test",
+      "accuracy": 0.85124,
+      "macro_precision": 0.6918258793027932,
+      "macro_recall": 0.9610392243530729,
+      "macro_f1": 0.7235649538083196,
+      "weighted_f1": 0.9031185769185084,
+      "roc_auc": 0.9907058500663751,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 920,
+          "tp": 920,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74080
+        },
+        "geo_anomaly": {
+          "precision": 0.0875,
+          "recall": 0.9612,
+          "f1": 0.1603,
+          "support": 954,
+          "tp": 917,
+          "fp": 9568,
+          "fn": 37,
+          "tn": 64478
+        },
+        "normal": {
+          "precision": 0.9997,
+          "recall": 0.844,
+          "f1": 0.9153,
+          "support": 71273,
+          "tp": 60153,
+          "fp": 17,
+          "fn": 11120,
+          "tn": 3710
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 922,
+          "tp": 922,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74078
+        },
+        "privilege_escalation": {
+          "precision": 0.372,
+          "recall": 1.0,
+          "f1": 0.5422,
+          "support": 931,
+          "tp": 931,
+          "fp": 1572,
+          "fn": 0,
+          "tn": 72497
+        }
+      },
+      "confusion_matrix": [
+        [
+          920,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          917,
+          17,
+          0,
+          20
+        ],
+        [
+          0,
+          9568,
+          60153,
+          0,
+          1552
+        ],
+        [
+          0,
+          0,
+          0,
+          922,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          931
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "XGBoost",
+      "split": "train",
+      "accuracy": 0.8457885714285714,
+      "macro_precision": 0.6915704989526806,
+      "macro_recall": 0.9636233557957101,
+      "macro_f1": 0.7217116464157366,
+      "weighted_f1": 0.90020007767111,
+      "roc_auc": 0.993662583079389,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4357,
+          "tp": 4357,
+          "fp": 0,
+          "fn": 0,
+          "tn": 345643
+        },
+        "geo_anomaly": {
+          "precision": 0.0824,
+          "recall": 0.9826,
+          "f1": 0.152,
+          "support": 4265,
+          "tp": 4191,
+          "fp": 46689,
+          "fn": 74,
+          "tn": 299046
+        },
+        "normal": {
+          "precision": 1.0,
+          "recall": 0.838,
+          "f1": 0.9119,
+          "support": 332687,
+          "tp": 278798,
+          "fp": 0,
+          "fn": 53889,
+          "tn": 17313
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.9974,
+          "f1": 0.9987,
+          "support": 4311,
+          "tp": 4300,
+          "fp": 0,
+          "fn": 11,
+          "tn": 345689
+        },
+        "privilege_escalation": {
+          "precision": 0.3755,
+          "recall": 1.0,
+          "f1": 0.546,
+          "support": 4380,
+          "tp": 4380,
+          "fp": 7285,
+          "fn": 0,
+          "tn": 338335
+        }
+      },
+      "confusion_matrix": [
+        [
+          4357,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          4191,
+          0,
+          0,
+          74
+        ],
+        [
+          0,
+          46678,
+          278798,
+          0,
+          7211
+        ],
+        [
+          0,
+          11,
+          0,
+          4300,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          4380
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "XGBoost",
+      "split": "val",
+      "accuracy": 0.8435466666666667,
+      "macro_precision": 0.6885599075093276,
+      "macro_recall": 0.9594648378943692,
+      "macro_f1": 0.7172888841109253,
+      "weighted_f1": 0.8989456604061817,
+      "roc_auc": 0.9904799734128613,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 956,
+          "tp": 956,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74044
+        },
+        "geo_anomaly": {
+          "precision": 0.0802,
+          "recall": 0.9714,
+          "f1": 0.1481,
+          "support": 909,
+          "tp": 883,
+          "fp": 10131,
+          "fn": 26,
+          "tn": 63960
+        },
+        "normal": {
+          "precision": 0.9999,
+          "recall": 0.836,
+          "f1": 0.9106,
+          "support": 71333,
+          "tp": 59634,
+          "fp": 6,
+          "fn": 11699,
+          "tn": 3661
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.991,
+          "f1": 0.9955,
+          "support": 892,
+          "tp": 884,
+          "fp": 0,
+          "fn": 8,
+          "tn": 74108
+        },
+        "privilege_escalation": {
+          "precision": 0.3627,
+          "recall": 0.9989,
+          "f1": 0.5322,
+          "support": 910,
+          "tp": 909,
+          "fp": 1597,
+          "fn": 1,
+          "tn": 72493
+        }
+      },
+      "confusion_matrix": [
+        [
+          956,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          883,
+          6,
+          0,
+          20
+        ],
+        [
+          0,
+          10122,
+          59634,
+          0,
+          1577
+        ],
+        [
+          0,
+          8,
+          0,
+          884,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          909
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "XGBoost",
+      "split": "test",
+      "accuracy": 0.8475733333333333,
+      "macro_precision": 0.6916408613203942,
+      "macro_recall": 0.9616863015562693,
+      "macro_f1": 0.7223002880850536,
+      "weighted_f1": 0.9009241287255239,
+      "roc_auc": 0.9906340783391194,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 920,
+          "tp": 920,
+          "fp": 0,
+          "fn": 0,
+          "tn": 74080
+        },
+        "geo_anomaly": {
+          "precision": 0.0861,
+          "recall": 0.9727,
+          "f1": 0.1581,
+          "support": 954,
+          "tp": 928,
+          "fp": 9856,
+          "fn": 26,
+          "tn": 64190
+        },
+        "normal": {
+          "precision": 0.9999,
+          "recall": 0.84,
+          "f1": 0.913,
+          "support": 71273,
+          "tp": 59871,
+          "fp": 6,
+          "fn": 11402,
+          "tn": 3721
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.9957,
+          "f1": 0.9978,
+          "support": 922,
+          "tp": 918,
+          "fp": 0,
+          "fn": 4,
+          "tn": 74078
+        },
+        "privilege_escalation": {
+          "precision": 0.3723,
+          "recall": 1.0,
+          "f1": 0.5425,
+          "support": 931,
+          "tp": 931,
+          "fp": 1570,
+          "fn": 0,
+          "tn": 72499
+        }
+      },
+      "confusion_matrix": [
+        [
+          920,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          928,
+          6,
+          0,
+          20
+        ],
+        [
+          0,
+          9852,
+          59871,
+          0,
+          1550
+        ],
+        [
+          0,
+          4,
+          0,
+          918,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          931
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    }
+  ],
+  "robustness_results": [
+    {
+      "model": "DecisionTree",
+      "split": "balanced",
+      "accuracy": 0.4372543216962153,
+      "macro_precision": 0.6584635521755899,
+      "macro_recall": 0.4716326483734403,
+      "macro_f1": 0.4479380064999504,
+      "weighted_f1": 0.5698051185894051,
+      "roc_auc": null,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 0.4947,
+          "f1": 0.6619,
+          "support": 4876,
+          "tp": 2412,
+          "fp": 0,
+          "fn": 2464,
+          "tn": 329657
+        },
+        "geo_anomaly": {
+          "precision": 0.0089,
+          "recall": 0.5464,
+          "f1": 0.0176,
+          "support": 2652,
+          "tp": 1449,
+          "fp": 160524,
+          "fn": 1203,
+          "tn": 171357
+        },
+        "normal": {
+          "precision": 0.9629,
+          "recall": 0.5012,
+          "f1": 0.6593,
+          "support": 190122,
+          "tp": 95287,
+          "fp": 3667,
+          "fn": 94835,
+          "tn": 140744
+        },
+        "port_scan": {
+          "precision": 0.662,
+          "recall": 0.3443,
+          "f1": 0.453,
+          "support": 136883,
+          "tp": 47128,
+          "fp": 24066,
+          "fn": 89755,
+          "tn": 173584
+        },
+        "privilege_escalation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 334533
+        }
+      },
+      "confusion_matrix": [
+        [
+          2412,
+          0,
+          2464,
+          0,
+          0
+        ],
+        [
+          0,
+          1449,
+          1203,
+          0,
+          0
+        ],
+        [
+          0,
+          70769,
+          95287,
+          24066,
+          0
+        ],
+        [
+          0,
+          89755,
+          0,
+          47128,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "RandomForest",
+      "split": "balanced",
+      "accuracy": 0.4705873561053768,
+      "macro_precision": 0.7445378564720173,
+      "macro_recall": 0.5014177574195942,
+      "macro_f1": 0.47290718094164,
+      "weighted_f1": 0.6199209523820146,
+      "roc_auc": null,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 0.4947,
+          "f1": 0.6619,
+          "support": 4876,
+          "tp": 2412,
+          "fp": 0,
+          "fn": 2464,
+          "tn": 329657
+        },
+        "geo_anomaly": {
+          "precision": 0.0093,
+          "recall": 0.6127,
+          "f1": 0.0183,
+          "support": 2652,
+          "tp": 1625,
+          "fp": 173615,
+          "fn": 1027,
+          "tn": 158266
+        },
+        "normal": {
+          "precision": 0.9689,
+          "recall": 0.5716,
+          "f1": 0.719,
+          "support": 190122,
+          "tp": 108682,
+          "fp": 3491,
+          "fn": 81440,
+          "tn": 140920
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.3266,
+          "f1": 0.4924,
+          "support": 136883,
+          "tp": 44708,
+          "fp": 0,
+          "fn": 92175,
+          "tn": 197650
+        },
+        "privilege_escalation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 334533
+        }
+      },
+      "confusion_matrix": [
+        [
+          2412,
+          0,
+          2464,
+          0,
+          0
+        ],
+        [
+          0,
+          1625,
+          1027,
+          0,
+          0
+        ],
+        [
+          0,
+          81440,
+          108682,
+          0,
+          0
+        ],
+        [
+          0,
+          92175,
+          0,
+          44708,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "GradientBoosting",
+      "split": "balanced",
+      "accuracy": 0.4407068958817217,
+      "macro_precision": 0.7470563420150568,
+      "macro_recall": 0.5805127388711778,
+      "macro_f1": 0.4658674592941757,
+      "weighted_f1": 0.5956273033523137,
+      "roc_auc": null,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 0.4947,
+          "f1": 0.6619,
+          "support": 4876,
+          "tp": 2412,
+          "fp": 0,
+          "fn": 2464,
+          "tn": 329657
+        },
+        "geo_anomaly": {
+          "precision": 0.0139,
+          "recall": 0.9819,
+          "f1": 0.0274,
+          "support": 2652,
+          "tp": 2604,
+          "fp": 184590,
+          "fn": 48,
+          "tn": 147291
+        },
+        "normal": {
+          "precision": 0.9743,
+          "recall": 0.5012,
+          "f1": 0.6619,
+          "support": 190122,
+          "tp": 95287,
+          "fp": 2512,
+          "fn": 94835,
+          "tn": 141899
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.3443,
+          "f1": 0.5122,
+          "support": 136883,
+          "tp": 47128,
+          "fp": 0,
+          "fn": 89755,
+          "tn": 197650
+        },
+        "privilege_escalation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 334533
+        }
+      },
+      "confusion_matrix": [
+        [
+          2412,
+          0,
+          2464,
+          0,
+          0
+        ],
+        [
+          0,
+          2604,
+          48,
+          0,
+          0
+        ],
+        [
+          0,
+          94835,
+          95287,
+          0,
+          0
+        ],
+        [
+          0,
+          89755,
+          0,
+          47128,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "XGBoost",
+      "split": "balanced",
+      "accuracy": 0.6075006053214481,
+      "macro_precision": 0.74914345808626,
+      "macro_recall": 0.6740572636492467,
+      "macro_f1": 0.5492038946361969,
+      "weighted_f1": 0.7435370142095287,
+      "roc_auc": null,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 0.4947,
+          "f1": 0.6619,
+          "support": 4876,
+          "tp": 2412,
+          "fp": 0,
+          "fn": 2464,
+          "tn": 329657
+        },
+        "geo_anomaly": {
+          "precision": 0.0202,
+          "recall": 0.9977,
+          "f1": 0.0395,
+          "support": 2652,
+          "tp": 2646,
+          "fp": 128573,
+          "fn": 6,
+          "tn": 203308
+        },
+        "normal": {
+          "precision": 0.9797,
+          "recall": 0.6271,
+          "f1": 0.7647,
+          "support": 190122,
+          "tp": 119232,
+          "fp": 2470,
+          "fn": 70890,
+          "tn": 141941
+        },
+        "port_scan": {
+          "precision": 0.9967,
+          "recall": 0.5767,
+          "f1": 0.7306,
+          "support": 136883,
+          "tp": 78939,
+          "fp": 261,
+          "fn": 57944,
+          "tn": 197389
+        },
+        "privilege_escalation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 334533
+        }
+      },
+      "confusion_matrix": [
+        [
+          2412,
+          0,
+          2464,
+          0,
+          0
+        ],
+        [
+          0,
+          2646,
+          6,
+          0,
+          0
+        ],
+        [
+          0,
+          70629,
+          119232,
+          261,
+          0
+        ],
+        [
+          0,
+          57944,
+          0,
+          78939,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "DecisionTree",
+      "split": "unbalanced",
+      "accuracy": 0.501362,
+      "macro_precision": 0.6136256243217938,
+      "macro_recall": 0.4145137777777778,
+      "macro_f1": 0.36551796491684085,
+      "weighted_f1": 0.6207861889383391,
+      "roc_auc": 0.6111824820335043,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 0.4994,
+          "f1": 0.6661,
+          "support": 12500,
+          "tp": 6242,
+          "fp": 0,
+          "fn": 6258,
+          "tn": 487500
+        },
+        "geo_anomaly": {
+          "precision": 0.0349,
+          "recall": 0.5658,
+          "f1": 0.0657,
+          "support": 12500,
+          "tp": 7072,
+          "fp": 195772,
+          "fn": 5428,
+          "tn": 291728
+        },
+        "normal": {
+          "precision": 0.9119,
+          "recall": 0.5138,
+          "f1": 0.6573,
+          "support": 450000,
+          "tp": 231196,
+          "fp": 22326,
+          "fn": 218804,
+          "tn": 27674
+        },
+        "port_scan": {
+          "precision": 0.1213,
+          "recall": 0.3449,
+          "f1": 0.1795,
+          "support": 12500,
+          "tp": 4311,
+          "fp": 31221,
+          "fn": 8189,
+          "tn": 456279
+        },
+        "privilege_escalation": {
+          "precision": 1.0,
+          "recall": 0.1488,
+          "f1": 0.2591,
+          "support": 12500,
+          "tp": 1860,
+          "fp": 0,
+          "fn": 10640,
+          "tn": 487500
+        }
+      },
+      "confusion_matrix": [
+        [
+          6242,
+          0,
+          6258,
+          0,
+          0
+        ],
+        [
+          0,
+          7072,
+          5428,
+          0,
+          0
+        ],
+        [
+          0,
+          187583,
+          231196,
+          31221,
+          0
+        ],
+        [
+          0,
+          8189,
+          0,
+          4311,
+          0
+        ],
+        [
+          0,
+          0,
+          10640,
+          0,
+          1860
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "RandomForest",
+      "split": "unbalanced",
+      "accuracy": 0.549996,
+      "macro_precision": 0.7964282899515133,
+      "macro_recall": 0.5359057777777778,
+      "macro_f1": 0.5386640895984207,
+      "weighted_f1": 0.6766843785387028,
+      "roc_auc": 0.838018033651282,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 0.4994,
+          "f1": 0.6661,
+          "support": 12500,
+          "tp": 6242,
+          "fp": 0,
+          "fn": 6258,
+          "tn": 487500
+        },
+        "geo_anomaly": {
+          "precision": 0.039,
+          "recall": 0.6827,
+          "f1": 0.0739,
+          "support": 12500,
+          "tp": 8534,
+          "fp": 210013,
+          "fn": 3966,
+          "tn": 277487
+        },
+        "normal": {
+          "precision": 0.9431,
+          "recall": 0.552,
+          "f1": 0.6964,
+          "support": 450000,
+          "tp": 248404,
+          "fp": 14989,
+          "fn": 201596,
+          "tn": 35011
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.3266,
+          "f1": 0.4924,
+          "support": 12500,
+          "tp": 4083,
+          "fp": 0,
+          "fn": 8417,
+          "tn": 487500
+        },
+        "privilege_escalation": {
+          "precision": 1.0,
+          "recall": 0.6188,
+          "f1": 0.7645,
+          "support": 12500,
+          "tp": 7735,
+          "fp": 0,
+          "fn": 4765,
+          "tn": 487500
+        }
+      },
+      "confusion_matrix": [
+        [
+          6242,
+          0,
+          6258,
+          0,
+          0
+        ],
+        [
+          0,
+          8534,
+          3966,
+          0,
+          0
+        ],
+        [
+          0,
+          201596,
+          248404,
+          0,
+          0
+        ],
+        [
+          0,
+          8417,
+          0,
+          4083,
+          0
+        ],
+        [
+          0,
+          0,
+          4765,
+          0,
+          7735
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "GradientBoosting",
+      "split": "unbalanced",
+      "accuracy": 0.524546,
+      "macro_precision": 0.801340021393554,
+      "macro_recall": 0.5999857777777777,
+      "macro_f1": 0.5485687257791458,
+      "weighted_f1": 0.6533022051414819,
+      "roc_auc": 0.7556561796082051,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 0.4994,
+          "f1": 0.6661,
+          "support": 12500,
+          "tp": 6242,
+          "fp": 0,
+          "fn": 6258,
+          "tn": 487500
+        },
+        "geo_anomaly": {
+          "precision": 0.0511,
+          "recall": 0.9773,
+          "f1": 0.0971,
+          "support": 12500,
+          "tp": 12216,
+          "fp": 226993,
+          "fn": 284,
+          "tn": 260507
+        },
+        "normal": {
+          "precision": 0.9556,
+          "recall": 0.5138,
+          "f1": 0.6683,
+          "support": 450000,
+          "tp": 231196,
+          "fp": 10734,
+          "fn": 218804,
+          "tn": 39266
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.3449,
+          "f1": 0.5129,
+          "support": 12500,
+          "tp": 4311,
+          "fp": 0,
+          "fn": 8189,
+          "tn": 487500
+        },
+        "privilege_escalation": {
+          "precision": 1.0,
+          "recall": 0.6646,
+          "f1": 0.7985,
+          "support": 12500,
+          "tp": 8308,
+          "fp": 0,
+          "fn": 4192,
+          "tn": 487500
+        }
+      },
+      "confusion_matrix": [
+        [
+          6242,
+          0,
+          6258,
+          0,
+          0
+        ],
+        [
+          0,
+          12216,
+          284,
+          0,
+          0
+        ],
+        [
+          0,
+          218804,
+          231196,
+          0,
+          0
+        ],
+        [
+          0,
+          8189,
+          0,
+          4311,
+          0
+        ],
+        [
+          0,
+          0,
+          4192,
+          0,
+          8308
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    },
+    {
+      "model": "XGBoost",
+      "split": "unbalanced",
+      "accuracy": 0.59305,
+      "macro_precision": 0.8044720130052262,
+      "macro_recall": 0.6648311111111112,
+      "macro_f1": 0.6076235770606138,
+      "weighted_f1": 0.7109812981258992,
+      "roc_auc": 0.7914748495377777,
+      "per_class": {
+        "brute_force": {
+          "precision": 1.0,
+          "recall": 0.4994,
+          "f1": 0.6661,
+          "support": 12500,
+          "tp": 6242,
+          "fp": 0,
+          "fn": 6258,
+          "tn": 487500
+        },
+        "geo_anomaly": {
+          "precision": 0.0607,
+          "recall": 0.9986,
+          "f1": 0.1145,
+          "support": 12500,
+          "tp": 12482,
+          "fp": 193007,
+          "fn": 18,
+          "tn": 294493
+        },
+        "normal": {
+          "precision": 0.9616,
+          "recall": 0.5828,
+          "f1": 0.7257,
+          "support": 450000,
+          "tp": 262258,
+          "fp": 10468,
+          "fn": 187742,
+          "tn": 39532
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 0.5788,
+          "f1": 0.7332,
+          "support": 12500,
+          "tp": 7235,
+          "fp": 0,
+          "fn": 5265,
+          "tn": 487500
+        },
+        "privilege_escalation": {
+          "precision": 1.0,
+          "recall": 0.6646,
+          "f1": 0.7985,
+          "support": 12500,
+          "tp": 8308,
+          "fp": 0,
+          "fn": 4192,
+          "tn": 487500
+        }
+      },
+      "confusion_matrix": [
+        [
+          6242,
+          0,
+          6258,
+          0,
+          0
+        ],
+        [
+          0,
+          12482,
+          18,
+          0,
+          0
+        ],
+        [
+          0,
+          187742,
+          262258,
+          0,
+          0
+        ],
+        [
+          0,
+          5265,
+          0,
+          7235,
+          0
+        ],
+        [
+          0,
+          0,
+          4192,
+          0,
+          8308
+        ]
+      ],
+      "cm_labels": [
+        "brute_force",
+        "geo_anomaly",
+        "normal",
+        "port_scan",
+        "privilege_escalation"
+      ]
+    }
+  ],
+  "overfitting_analysis": {
+    "DecisionTree": {
+      "train_f1": 0.8664,
+      "val_f1": 0.7674,
+      "test_f1": 0.7736,
+      "gap_train_val": 0.099,
+      "gap_train_test": 0.0929,
+      "verdict": "OVERFITTING"
+    },
+    "RandomForest": {
+      "train_f1": 0.7391,
+      "val_f1": 0.7222,
+      "test_f1": 0.7267,
+      "gap_train_val": 0.0169,
+      "gap_train_test": 0.0123,
+      "verdict": "GOOD"
+    },
+    "GradientBoosting": {
+      "train_f1": 0.7224,
+      "val_f1": 0.7193,
+      "test_f1": 0.7236,
+      "gap_train_val": 0.0031,
+      "gap_train_test": -0.0012,
+      "verdict": "GOOD"
+    },
+    "XGBoost": {
+      "train_f1": 0.7217,
+      "val_f1": 0.7173,
+      "test_f1": 0.7223,
+      "gap_train_val": 0.0044,
+      "gap_train_test": -0.0006,
+      "verdict": "GOOD"
+    }
+  },
+  "dataset_info": {
+    "train_size": 350000,
+    "val_size": 75000,
+    "test_size": 75000,
+    "n_features": 16,
+    "feature_names": [
+      "attempts",
+      "log_port",
+      "hour",
+      "dow",
+      "month",
+      "day",
+      "is_weekend",
+      "is_night",
+      "protocol_enc",
+      "server_enc",
+      "service_enc",
+      "status_enc",
+      "source_ip_freq",
+      "username_freq",
+      "comment_failed",
+      "comment_accepted"
+    ],
+    "classes": [
+      "brute_force",
+      "geo_anomaly",
+      "normal",
+      "port_scan",
+      "privilege_escalation"
+    ],
+    "train_class_dist": {
+      "normal": 332687,
+      "privilege_escalation": 4380,
+      "brute_force": 4357,
+      "port_scan": 4311,
+      "geo_anomaly": 4265
+    },
+    "val_class_dist": {
+      "normal": 71333,
+      "brute_force": 956,
+      "privilege_escalation": 910,
+      "geo_anomaly": 909,
+      "port_scan": 892
+    },
+    "test_class_dist": {
+      "normal": 71273,
+      "geo_anomaly": 954,
+      "privilege_escalation": 931,
+      "port_scan": 922,
+      "brute_force": 920
+    }
+  }
+}
