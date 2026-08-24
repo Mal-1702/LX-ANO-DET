@@ -228,3 +228,125 @@ with tabs[0]:
                 f"⚠️ Auxiliary dataset Macro F1 = {worst_rob:.4f}. "
                 f"Moderate generalization concerns. See Robustness tab."
             )
+
+
+# ========================================================================
+# TAB 2: DATASET EXPLORATION
+# ========================================================================
+with tabs[1]:
+    st.header("Dataset Exploration")
+
+    if eval_data and "dataset_info" in eval_data:
+        ds_info = eval_data["dataset_info"]
+
+        # Class distribution
+        st.subheader("Training Class Distribution")
+        train_dist = ds_info.get("train_class_dist", {})
+        if train_dist:
+            dist_df = pd.DataFrame([
+                {"Class": cls, "Count": cnt, "Percentage": f"{cnt / sum(train_dist.values()) * 100:.2f}%"}
+                for cls, cnt in sorted(train_dist.items(), key=lambda x: -x[1])
+            ])
+            col_chart, col_table = st.columns([3, 2])
+            with col_chart:
+                import plotly.express as px
+                fig = px.bar(
+                    dist_df, x="Class", y="Count", color="Class",
+                    title="Class Distribution in Training Set",
+                    color_discrete_sequence=px.colors.qualitative.Set2,
+                )
+                fig.update_layout(showlegend=False, height=400)
+                st.plotly_chart(fig, use_container_width=True)
+            with col_table:
+                st.dataframe(dist_df, use_container_width=True, hide_index=True)
+
+            # Normal vs anomaly
+            normal_n = train_dist.get("normal", 0)
+            anomaly_n = sum(v for k, v in train_dist.items() if k != "normal")
+            st.subheader("Normal vs Anomaly Split")
+            na_col1, na_col2 = st.columns(2)
+            na_col1.metric("Normal Events", f"{normal_n:,}")
+            na_col2.metric("Anomaly Events", f"{anomaly_n:,}", delta=f"{anomaly_n/(normal_n+anomaly_n)*100:.2f}%")
+
+        # Dataset sample viewer
+        st.subheader("Dataset Sample Viewer")
+        ds_choice = st.selectbox("Select Dataset", [
+            "Main (labeled)",
+            "Balanced (auxiliary)",
+            "Unbalanced (auxiliary)",
+            "Inference (unlabeled)",
+        ])
+        ds_map = {
+            "Main (labeled)": PROJECT_ROOT / "linux_auth_logs_labeled.csv",
+            "Balanced (auxiliary)": PROJECT_ROOT / "linux_auth_logs_full(balanced).csv",
+            "Unbalanced (auxiliary)": PROJECT_ROOT / "linux_auth_logs_full(new_unbalanced).csv",
+            "Inference (unlabeled)": PROJECT_ROOT / "linux_auth_logs_multiple_anomalies.csv",
+        }
+        sample_df = load_dataset_sample(str(ds_map[ds_choice]), nrows=500)
+        if sample_df is not None:
+            st.caption(f"Showing first 500 rows of {ds_choice}")
+            st.dataframe(sample_df, use_container_width=True, height=300)
+        else:
+            st.warning(f"Dataset not found: {ds_map[ds_choice]}")
+
+    else:
+        st.warning("Evaluation results not found. Run evaluation script first.")
+
+
+# ========================================================================
+# TAB 3: MODEL COMPARISON
+# ========================================================================
+with tabs[2]:
+    st.header("Model Comparison — Test Set Performance")
+
+    comp_df = make_comparison_df()
+    if comp_df is not None:
+        # Highlight the selected model
+        def highlight_best(row):
+            if row["Model"] == model_name:
+                return ["background-color: #d4edda; font-weight: bold"] * len(row)
+            return [""] * len(row)
+
+        st.dataframe(
+            comp_df.style.apply(highlight_best, axis=1).format({
+                "Accuracy": "{:.4f}", "Macro Precision": "{:.4f}",
+                "Macro Recall": "{:.4f}", "Macro F1": "{:.4f}",
+                "Weighted F1": "{:.4f}", "ROC-AUC": "{:.4f}",
+            }),
+            use_container_width=True, hide_index=True,
+        )
+
+        st.subheader("Metric Comparison Chart")
+        import plotly.graph_objects as go
+        metrics_to_plot = ["Accuracy", "Macro Precision", "Macro Recall", "Macro F1", "Weighted F1"]
+        fig = go.Figure()
+        for _, row in comp_df.iterrows():
+            fig.add_trace(go.Bar(
+                name=row["Model"],
+                x=metrics_to_plot,
+                y=[row[m] for m in metrics_to_plot],
+            ))
+        fig.update_layout(barmode="group", height=450, yaxis_range=[0, 1.05],
+                         title="Model Performance Comparison (Test Set)")
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Per-class breakdown
+        st.subheader("Per-Class Performance (Test Set)")
+        model_choice = st.selectbox("Select model for per-class view", comp_df["Model"].tolist(), key="pc_model")
+        test_r = next((r for r in eval_data["evaluation_results"]
+                       if r["model"] == model_choice and r["split"] == "test"), None)
+        if test_r and "per_class" in test_r:
+            pc_rows = []
+            for cls, metrics in test_r["per_class"].items():
+                pc_rows.append({
+                    "Class": cls,
+                    "Precision": metrics["precision"],
+                    "Recall": metrics["recall"],
+                    "F1-Score": metrics["f1"],
+                    "Support": metrics["support"],
+                    "False Positives": metrics["fp"],
+                    "False Negatives": metrics["fn"],
+                })
+            st.dataframe(pd.DataFrame(pc_rows), use_container_width=True, hide_index=True)
+    else:
+        st.warning("No evaluation results found.")
