@@ -638,3 +638,152 @@ with tabs[6]:
 
         except Exception as e:
             st.error(f"Error processing file: {str(e)}")
+
+
+# ========================================================================
+# TAB 8: SINGLE EVENT PREDICTION
+# ========================================================================
+with tabs[7]:
+    st.header("Single Event Prediction")
+    st.markdown("Enter a single authentication log event for real-time classification.")
+
+    with st.form("single_pred_form"):
+        fc1, fc2, fc3 = st.columns(3)
+        with fc1:
+            inp_timestamp = st.text_input("Timestamp", value="2024-03-28T19:34:14", help="ISO-8601 format")
+            inp_source_ip = st.text_input("Source IP", value="195.241.151.7")
+            inp_server = st.text_input("Server", value="srv-tok-03")
+            inp_username = st.text_input("Username", value="admin")
+        with fc2:
+            inp_service = st.selectbox("Service", ["ssh", "sshd", "sudo", "su", "login", "cron"])
+            inp_status = st.selectbox("Status", ["Failed", "Success"])
+            inp_protocol = st.selectbox("Protocol", ["SSH", "SSH2", "RDP", "TELNET", "unknown"])
+        with fc3:
+            inp_attempts = st.number_input("Attempts", min_value=1, max_value=10000, value=1)
+            inp_port = st.number_input("Port", min_value=0, max_value=65535, value=22)
+            inp_comment = st.text_area("Comment", value="", height=68)
+
+        submitted = st.form_submit_button("🔍 Predict", use_container_width=True)
+
+    if submitted:
+        row = {
+            "timestamp": inp_timestamp,
+            "source_ip": inp_source_ip,
+            "server": inp_server,
+            "username": inp_username,
+            "service": inp_service,
+            "attempts": inp_attempts,
+            "status": inp_status,
+            "port": inp_port,
+            "protocol": inp_protocol,
+            "comment": inp_comment,
+        }
+        try:
+            result = predict_single(row, model=model, maps=maps, le=le, meta=meta)
+
+            # Display result
+            is_anomaly = result["is_anomaly"]
+            label = result["label"]
+            prob = result.get("probability")
+
+            if is_anomaly:
+                st.error(f"🚨 **ANOMALY DETECTED: `{label}`**")
+            else:
+                st.success(f"✅ **Normal activity: `{label}`**")
+
+            rc1, rc2, rc3 = st.columns(3)
+            rc1.metric("Predicted Class", label)
+            rc2.metric("Confidence", safe_metric(prob) if prob else "N/A")
+            rc3.metric("Anomaly", "YES" if is_anomaly else "NO")
+
+            # Probability breakdown
+            if result.get("all_probs"):
+                st.subheader("Class Probability Distribution")
+                prob_df = pd.DataFrame([
+                    {"Class": cls, "Probability": p}
+                    for cls, p in sorted(result["all_probs"].items(), key=lambda x: -x[1])
+                ])
+                import plotly.express as px
+                fig = px.bar(prob_df, x="Class", y="Probability",
+                            color="Probability", color_continuous_scale="RdYlGn_r",
+                            title="Prediction Probabilities")
+                fig.update_layout(height=350, yaxis_range=[0, 1.05])
+                st.plotly_chart(fig, use_container_width=True)
+
+        except Exception as e:
+            st.error(f"Prediction failed: {str(e)}")
+
+
+# ========================================================================
+# TAB 9: ANOMALY EXPLANATION
+# ========================================================================
+with tabs[8]:
+    st.header("Anomaly Explanation — Feature Contributions")
+    st.caption(
+        "⚠️ These are **model-level feature importances**, NOT causal explanations. "
+        "They indicate which features the model relied on most for this specific prediction."
+    )
+
+    if not hasattr(model, "feature_importances_"):
+        st.warning(
+            f"The current model ({model_name}) does not support `feature_importances_`. "
+            "Explanation is not available for this model type."
+        )
+    else:
+        with st.form("explain_form"):
+            ec1, ec2 = st.columns(2)
+            with ec1:
+                ex_source_ip = st.text_input("Source IP", value="195.241.151.7", key="ex_ip")
+                ex_username = st.text_input("Username", value="root", key="ex_user")
+                ex_service = st.selectbox("Service", ["ssh", "sshd", "sudo", "su", "login", "cron"], key="ex_svc")
+                ex_status = st.selectbox("Status", ["Failed", "Success"], key="ex_status")
+            with ec2:
+                ex_port = st.number_input("Port", min_value=0, max_value=65535, value=22, key="ex_port")
+                ex_attempts = st.number_input("Attempts", min_value=1, max_value=10000, value=5, key="ex_att")
+                ex_timestamp = st.text_input("Timestamp", value="2024-03-28T03:14:00", key="ex_ts")
+                ex_protocol = st.selectbox("Protocol", ["SSH", "SSH2", "RDP", "TELNET", "unknown"], key="ex_proto")
+            ex_submitted = st.form_submit_button("🔍 Explain", use_container_width=True)
+
+        if ex_submitted:
+            row = {
+                "timestamp": ex_timestamp, "source_ip": ex_source_ip,
+                "username": ex_username, "service": ex_service,
+                "status": ex_status, "port": ex_port,
+                "attempts": ex_attempts, "protocol": ex_protocol,
+            }
+            try:
+                # Get prediction first
+                pred = predict_single(row, model=model, maps=maps, le=le, meta=meta)
+                label = pred["label"]
+                is_anom = pred["is_anomaly"]
+
+                if is_anom:
+                    st.error(f"🚨 Predicted: **`{label}`** (Anomaly)")
+                else:
+                    st.success(f"✅ Predicted: **`{label}`** (Normal)")
+
+                contribs = get_feature_contributions(row, model=model, maps=maps, le=le, meta=meta)
+                if contribs:
+                    contrib_df = pd.DataFrame([
+                        {"Feature": feat, "Importance": info["importance"], "Value": info["value"]}
+                        for feat, info in contribs.items()
+                    ])
+
+                    st.subheader("Top Feature Contributions")
+                    import plotly.express as px
+                    top_n = contrib_df.head(10)
+                    fig = px.bar(
+                        top_n, x="Importance", y="Feature", orientation="h",
+                        title=f"Top 10 Feature Contributions for '{label}' Prediction",
+                        color="Importance", color_continuous_scale="Viridis",
+                    )
+                    fig.update_layout(height=400, yaxis=dict(autorange="reversed"))
+                    st.plotly_chart(fig, use_container_width=True)
+
+                    st.subheader("Full Feature Breakdown")
+                    st.dataframe(contrib_df, use_container_width=True, hide_index=True)
+                else:
+                    st.info("No feature contributions available for this model.")
+
+            except Exception as e:
+                st.error(f"Explanation failed: {str(e)}")
