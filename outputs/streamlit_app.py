@@ -432,3 +432,109 @@ with tabs[4]:
             st.plotly_chart(fig, use_container_width=True)
         elif fi_model != model_name:
             st.info(f"Interactive chart only available for the active model ({model_name}). Showing saved image above.")
+
+
+# ========================================================================
+# TAB 6: ROBUSTNESS / GENERALIZATION
+# ========================================================================
+with tabs[5]:
+    st.header("Robustness & Generalization Analysis")
+    st.markdown(
+        "Compares model performance on the **main test set** versus "
+        "**auxiliary datasets** with different class distributions."
+    )
+
+    if eval_data and eval_data.get("robustness_results"):
+        rob_results = eval_data["robustness_results"]
+        test_results = [r for r in eval_data["evaluation_results"] if r["split"] == "test"]
+
+        # Build comparison table
+        rob_rows = []
+        for r in test_results:
+            rob_rows.append({
+                "Model": r["model"], "Dataset": "Main Test",
+                "Accuracy": round(r["accuracy"], 4),
+                "Macro Precision": round(r["macro_precision"], 4),
+                "Macro Recall": round(r["macro_recall"], 4),
+                "Macro F1": round(r["macro_f1"], 4),
+            })
+        for r in rob_results:
+            rob_rows.append({
+                "Model": r["model"], "Dataset": r["split"].title(),
+                "Accuracy": round(r["accuracy"], 4),
+                "Macro Precision": round(r["macro_precision"], 4),
+                "Macro Recall": round(r["macro_recall"], 4),
+                "Macro F1": round(r["macro_f1"], 4),
+            })
+
+        rob_df = pd.DataFrame(rob_rows)
+        st.dataframe(rob_df, use_container_width=True, hide_index=True)
+
+        # Chart: Macro F1 comparison across datasets
+        st.subheader("Macro F1 Across Datasets")
+        import plotly.express as px
+        fig = px.bar(
+            rob_df, x="Model", y="Macro F1", color="Dataset", barmode="group",
+            title="Macro F1: Main Test vs Auxiliary Datasets",
+            color_discrete_sequence=px.colors.qualitative.Set1,
+        )
+        fig.update_layout(height=450, yaxis_range=[0, 1.05])
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Performance drop warnings
+        st.subheader("Generalization Warnings")
+        for m_name in set(r["model"] for r in rob_results):
+            test_f1 = next((r["macro_f1"] for r in test_results if r["model"] == m_name), None)
+            if test_f1 is None:
+                continue
+            for r in rob_results:
+                if r["model"] == m_name:
+                    drop = test_f1 - r["macro_f1"]
+                    if drop > 0.15:
+                        st.error(f"🔴 **{m_name}** drops by {drop:.4f} on {r['split']} dataset (F1: {test_f1:.4f} → {r['macro_f1']:.4f})")
+                    elif drop > 0.05:
+                        st.warning(f"🟡 **{m_name}** drops by {drop:.4f} on {r['split']} dataset (F1: {test_f1:.4f} → {r['macro_f1']:.4f})")
+                    else:
+                        st.success(f"🟢 **{m_name}** stable on {r['split']} dataset (F1: {test_f1:.4f} → {r['macro_f1']:.4f})")
+
+        # Overfitting analysis
+        st.subheader("Overfitting Analysis (Train → Val → Test)")
+        of_data = eval_data.get("overfitting_analysis", {})
+        if of_data:
+            of_rows = []
+            for m, info in of_data.items():
+                of_rows.append({
+                    "Model": m,
+                    "Train F1": info["train_f1"],
+                    "Val F1": info["val_f1"],
+                    "Test F1": info["test_f1"],
+                    "Gap (Train→Test)": info["gap_train_test"],
+                    "Verdict": info["verdict"],
+                })
+            of_df = pd.DataFrame(of_rows)
+
+            def color_verdict(val):
+                if val == "OVERFITTING":
+                    return "background-color: #f8d7da; color: #721c24;"
+                elif val == "ACCEPTABLE":
+                    return "background-color: #fff3cd; color: #856404;"
+                else:
+                    return "background-color: #d4edda; color: #155724;"
+
+            st.dataframe(
+                of_df.style.applymap(color_verdict, subset=["Verdict"]),
+                use_container_width=True, hide_index=True,
+            )
+
+        # Schema mismatch warning
+        st.subheader("Known Data Quality Issues")
+        st.warning(
+            "**BALANCED dataset** is missing the `privilege_escalation` class entirely. "
+            "Only 4 of 5 classes are present, and 'port_scan' dominates at 40.92%."
+        )
+        st.warning(
+            "**UNBALANCED dataset** has 12,500 null `port` values, which default to 0.0 "
+            "during preprocessing."
+        )
+    else:
+        st.info("No robustness results found. Run the evaluation script to generate results.")
