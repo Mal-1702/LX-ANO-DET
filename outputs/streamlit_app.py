@@ -350,3 +350,85 @@ with tabs[2]:
             st.dataframe(pd.DataFrame(pc_rows), use_container_width=True, hide_index=True)
     else:
         st.warning("No evaluation results found.")
+
+
+# ========================================================================
+# TAB 4: CONFUSION MATRICES
+# ========================================================================
+with tabs[3]:
+    st.header("Confusion Matrices")
+
+    cm_col1, cm_col2 = st.columns(2)
+    with cm_col1:
+        cm_model = st.selectbox("Model", list(set(
+            r["model"] for r in eval_data["evaluation_results"]
+        )) if eval_data else [], key="cm_model")
+    with cm_col2:
+        cm_split = st.selectbox("Split", ["val", "test"], key="cm_split")
+
+    if eval_data and cm_model:
+        # Try loading the existing PNG first
+        png_path = OUTPUT_DIR / f"cm_{cm_model}_{cm_split}.png"
+        if png_path.exists():
+            st.image(str(png_path), caption=f"Confusion Matrix — {cm_model} ({cm_split})", width=700)
+        else:
+            st.info(f"No pre-generated image found at {png_path.name}")
+
+        # Also show dynamic table from evaluation results
+        r = next((r for r in eval_data["evaluation_results"]
+                  if r["model"] == cm_model and r["split"] == cm_split), None)
+        if r and "confusion_matrix" in r:
+            st.subheader("Confusion Matrix (Numeric)")
+            cm_array = np.array(r["confusion_matrix"])
+            cm_labels = r.get("cm_labels", classes)
+            cm_df = pd.DataFrame(cm_array, index=cm_labels, columns=cm_labels)
+            cm_df.index.name = "True \\ Predicted"
+            st.dataframe(cm_df, use_container_width=True)
+
+            # Plotly heatmap
+            import plotly.figure_factory as ff
+            fig = ff.create_annotated_heatmap(
+                z=cm_array, x=cm_labels, y=cm_labels,
+                colorscale="Blues", showscale=True,
+            )
+            fig.update_layout(
+                title=f"Confusion Matrix — {cm_model} ({cm_split})",
+                xaxis_title="Predicted", yaxis_title="True",
+                height=500,
+            )
+            fig.update_yaxes(autorange="reversed")
+            st.plotly_chart(fig, use_container_width=True)
+
+
+# ========================================================================
+# TAB 5: FEATURE IMPORTANCE
+# ========================================================================
+with tabs[4]:
+    st.header("Feature Importance Analysis")
+    st.caption("⚠️ Feature importance indicates model contribution, NOT causation.")
+
+    fi_models = []
+    if eval_data:
+        fi_models = list(set(r["model"] for r in eval_data["evaluation_results"]))
+    fi_model = st.selectbox("Select Model", fi_models, key="fi_model")
+
+    if fi_model:
+        # Try loading existing PNG
+        fi_png = OUTPUT_DIR / f"feature_importance_{fi_model}.png"
+        if fi_png.exists():
+            st.image(str(fi_png), caption=f"Feature Importance — {fi_model}", width=800)
+
+        # Also try to compute from loaded model if it's the active model
+        if fi_model == model_name and hasattr(model, "feature_importances_"):
+            fi = pd.Series(model.feature_importances_, index=FEATURE_COLS).sort_values(ascending=True)
+            import plotly.express as px
+            fig = px.bar(
+                x=fi.values, y=fi.index, orientation="h",
+                title=f"Feature Importances — {fi_model} (Interactive)",
+                labels={"x": "Importance", "y": "Feature"},
+                color=fi.values, color_continuous_scale="Viridis",
+            )
+            fig.update_layout(height=500, showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
+        elif fi_model != model_name:
+            st.info(f"Interactive chart only available for the active model ({model_name}). Showing saved image above.")
